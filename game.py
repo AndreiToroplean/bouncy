@@ -13,12 +13,6 @@ class Game:
         self.screen_rect = self.screen.get_rect()
         self.clock = pg.time.Clock()
 
-        self.pos = np.array(self.screen_rect.center, dtype=np.float64)
-        self.vel = np.array((0.0, 0.0))
-        self.acc = np.array((0.0, 0.2))
-
-        self.radius = 50
-
     def __enter__(self):
         pg.init()
         return self
@@ -35,13 +29,9 @@ class Game:
                         return
 
             # Logic
-            self.vel += self.acc
-            self.pos += self.vel
 
             # Graphics
             self.screen.fill(BLACK)
-
-            ball_rect = pg.draw.circle(self.screen, GREY, self.pos.astype(np.intc), self.radius)
 
             pg.display.flip()
 
