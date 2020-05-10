@@ -18,20 +18,21 @@ class Ball:
     def run_physics_step(self, input_acc):
         self.vel += self.acc + input_acc
 
-        self._collide(self.env_bbox.bottom, 1, +1)
-        self._collide(self.env_bbox.top, 1, -1)
-        self._collide(self.env_bbox.left, 0, -1)
-        self._collide(self.env_bbox.right, 0, +1)
+        new_pos = self.pos + self.vel
+        new_pos = self._collide(new_pos, self.env_bbox.bottom, 1, +1)
+        new_pos = self._collide(new_pos, self.env_bbox.top, 1, -1)
+        new_pos = self._collide(new_pos, self.env_bbox.left, 0, -1)
+        new_pos = self._collide(new_pos, self.env_bbox.right, 0, +1)
+        self.pos = new_pos
 
-    def _collide(self, bound_env, dim, direction, threshold=0.1):
-        new_ball_pos = self.pos + self.vel
-        if direction * self.pos[dim] + self.radius > direction * bound_env:
+    def _collide(self, new_pos, bound_env, dim, direction, threshold=0.1):
+        if direction * new_pos[dim] + self.radius > direction * bound_env:
             self.vel[dim] *= -1 * self.restitution
-            new_ball_pos[dim] -= (
-                (self.pos[dim] + direction * self.radius - bound_env) * (1 + self.restitution)
-                + threshold * direction
+            new_pos[dim] -= (
+                (new_pos[dim] + direction * self.radius - bound_env) * (1 + self.restitution)
+                + direction * threshold
                 )
-        self.pos = new_ball_pos
+        return new_pos
 
     def draw(self, screen):
         pg.draw.circle(screen, self.color, np.floor(self.pos).astype(np.intc), self.radius)

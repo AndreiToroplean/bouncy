@@ -26,7 +26,7 @@ class Game:
         self.ball = Ball(
             init_pos=np.array(self.screen_rect.center, dtype=np.float64),
             init_vel=np.array((0.0, 0.0)),
-            init_acc=np.array((0.0, 0.0 / (FPS*PHYSICS_SUBSTEPS)**2)),
+            init_acc=np.array((0.0, 2000.0 / (FPS*PHYSICS_SUBSTEPS)**2)),
 
             env_bbox=self.screen_rect,
 
