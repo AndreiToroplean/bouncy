@@ -20,10 +20,13 @@ class Game:
         self.clock = pg.time.Clock()
         self.font = pg.font.SysFont(pg.font.get_default_font(), 24)
 
+        self.input_acc_value = 1000.0 / (FPS * PHYSICS_SUBSTEPS)**2
+        self.input_acc = np.array((0.0, 0.0))
+
         self.ball = Ball(
             init_pos=np.array(self.screen_rect.center, dtype=np.float64),
             init_vel=np.array((0.0, 0.0)),
-            init_acc=np.array((0.0, 2000 / (FPS*PHYSICS_SUBSTEPS)**2)),
+            init_acc=np.array((0.0, 0.0 / (FPS*PHYSICS_SUBSTEPS)**2)),
 
             env_bbox=self.screen_rect,
 
@@ -32,9 +35,6 @@ class Game:
 
             color=WHITE
             )
-
-        self.input_acc_value = 1000.0 / (FPS * PHYSICS_SUBSTEPS)**2
-        self.input_acc = np.array((0.0, 0.0))
 
     def __enter__(self):
         return self

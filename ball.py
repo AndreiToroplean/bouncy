@@ -23,11 +23,14 @@ class Ball:
         self._collide(self.env_bbox.left, 0, -1)
         self._collide(self.env_bbox.right, 0, +1)
 
-    def _collide(self, bound_env, dim, direction):
+    def _collide(self, bound_env, dim, direction, threshold=0.1):
         new_ball_pos = self.pos + self.vel
         if direction * self.pos[dim] + self.radius > direction * bound_env:
             self.vel[dim] *= -1 * self.restitution
-            new_ball_pos[dim] -= (self.pos[dim] + direction * self.radius - bound_env) * (1 + self.restitution)
+            new_ball_pos[dim] -= (
+                (self.pos[dim] + direction * self.radius - bound_env) * (1 + self.restitution)
+                + threshold * direction
+                )
         self.pos = new_ball_pos
 
     def draw(self, screen):
