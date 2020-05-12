@@ -20,13 +20,14 @@ class Game:
         self.clock = pg.time.Clock()
         self.font = pg.font.SysFont(pg.font.get_default_font(), 24)
 
-        self.input_acc_value = 1000.0 / (FPS * PHYSICS_SUBSTEPS)**2
-        self.input_acc = np.array((0.0, 0.0))
+        self.len_der = 3
+        self.input_action_value = 1000.0 / (FPS * PHYSICS_SUBSTEPS) ** self.len_der
+        self.input_action = np.array((0.0, 0.0))
 
         self.ball = Ball(
             init_pos=np.array(self.screen_rect.center, dtype=np.float64),
-            init_vel=np.array((0.0, 0.0)),
-            init_acc=np.array((0.0, 2000.0 / (FPS*PHYSICS_SUBSTEPS)**2)),
+
+            len_der=self.len_der,
 
             env_bbox=self.screen_rect,
 
@@ -51,23 +52,23 @@ class Game:
 
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_LEFT:
-                        self.input_acc[0] = -self.input_acc_value
+                        self.input_action[0] = -self.input_action_value
                     if event.key == pg.K_RIGHT:
-                        self.input_acc[0] = self.input_acc_value
+                        self.input_action[0] = self.input_action_value
                     if event.key == pg.K_DOWN:
-                        self.input_acc[1] = self.input_acc_value
+                        self.input_action[1] = self.input_action_value
                     if event.key == pg.K_UP:
-                        self.input_acc[1] = -self.input_acc_value
+                        self.input_action[1] = -self.input_action_value
 
                 if event.type == pg.KEYUP:
                     if event.key == pg.K_LEFT or event.key == pg.K_RIGHT:
-                        self.input_acc[0] = 0.0
+                        self.input_action[0] = 0.0
                     if event.key == pg.K_DOWN or event.key == pg.K_UP:
-                        self.input_acc[1] = 0.0
+                        self.input_action[1] = 0.0
 
             # Logic
             for _ in range(PHYSICS_SUBSTEPS):
-                self.ball.run_physics_step(self.input_acc)
+                self.ball.run_physics_step(self.input_action)
 
             # Graphics
             self.screen.fill(BLACK)
