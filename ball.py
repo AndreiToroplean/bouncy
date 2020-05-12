@@ -36,7 +36,10 @@ class Ball:
 
     def _collide(self, new_pos, bound_env, dim, direction, threshold=0.1):
         if direction * new_pos[dim] + self.radius > direction * bound_env:
-            self.pos_der[1][dim] *= -1 * self.restitution
+            try:
+                self.pos_der[1][dim] *= -1 * self.restitution
+            except IndexError:
+                pass
             new_pos[dim] -= (
                 (new_pos[dim] + direction * self.radius - bound_env) * (1 + self.restitution)
                 + direction * threshold
