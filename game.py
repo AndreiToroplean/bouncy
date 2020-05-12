@@ -6,21 +6,28 @@ from ball import Ball
 BLACK = pg.Color(0, 0, 0)
 GREY = pg.Color(128, 128, 128)
 WHITE = pg.Color(255, 255, 255)
+
 FPS = 120
 PHYSICS_SUBSTEPS = 10
+
+INPUT_DERIVATIVE = 3
+
+FULL_SCREEN = False
+DEBUG = False
 
 
 class Game:
     def __init__(self):
         pg.init()
-
-        self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
-        # self.screen = pg.display.set_mode((800, 600))
+        if FULL_SCREEN:
+            self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+        else:
+            self.screen = pg.display.set_mode((800, 600))
         self.screen_rect = self.screen.get_rect()
         self.clock = pg.time.Clock()
         self.font = pg.font.SysFont(pg.font.get_default_font(), 24)
 
-        self.len_der = 3
+        self.len_der = INPUT_DERIVATIVE
         self.input_action_value = 1000.0 / (FPS * PHYSICS_SUBSTEPS) ** self.len_der
         self.input_action = np.array((0.0, 0.0))
 
@@ -80,8 +87,10 @@ class Game:
 
             self.ball.draw(self.screen)
 
-            fps_surf = self.font.render(f"{self.clock.get_fps():.1f}", True, WHITE)
-            self.screen.blit(fps_surf, (20, 20))
+            if DEBUG:
+                fps_surf = self.font.render(f"{self.clock.get_fps():.1f}", True, WHITE)
+                self.screen.blit(fps_surf, (20, 20))
+
             pg.display.flip()
 
             # Time
