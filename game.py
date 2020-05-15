@@ -2,18 +2,7 @@ import pygame as pg
 import numpy as np
 
 from ball import Ball
-
-BLACK = pg.Color(0, 0, 0)
-GREY = pg.Color(128, 128, 128)
-WHITE = pg.Color(255, 255, 255)
-
-FPS = 120
-PHYSICS_SUBSTEPS = 10
-
-INPUT_DERIVATIVE = 3
-
-FULL_SCREEN = False
-DEBUG = False
+from global_params import BLACK, WHITE, FPS, PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, FULL_SCREEN, DEBUG
 
 
 class Game:
