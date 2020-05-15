@@ -45,25 +45,30 @@ class Game:
     def main_loop(self):
         while True:
             # Inputs
-            for event in pg.event.get():
-                if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE or event.type == pg.QUIT:
-                    return
+            keys_pressed = pg.key.get_pressed()
 
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_LEFT:
-                        self.input_acc[0] = -self.input_acc_value
-                    if event.key == pg.K_RIGHT:
-                        self.input_acc[0] = self.input_acc_value
-                    if event.key == pg.K_DOWN:
-                        self.input_acc[1] = self.input_acc_value
-                    if event.key == pg.K_UP:
-                        self.input_acc[1] = -self.input_acc_value
+            if keys_pressed[pg.K_ESCAPE] or pg.event.peek(pg.QUIT):
+                return
 
-                if event.type == pg.KEYUP:
-                    if event.key == pg.K_LEFT or event.key == pg.K_RIGHT:
-                        self.input_acc[0] = 0.0
-                    if event.key == pg.K_DOWN or event.key == pg.K_UP:
-                        self.input_acc[1] = 0.0
+            is_moving_horiz = False
+            if keys_pressed[pg.K_LEFT]:
+                self.input_acc[0] = -self.input_acc_value
+                is_moving_horiz ^= True
+            if keys_pressed[pg.K_RIGHT]:
+                self.input_acc[0] = self.input_acc_value
+                is_moving_horiz ^= True
+            if not is_moving_horiz:
+                self.input_acc[0] = 0.0
+
+            is_moving_vert = False
+            if keys_pressed[pg.K_DOWN]:
+                self.input_acc[1] = self.input_acc_value
+                is_moving_vert ^= True
+            if keys_pressed[pg.K_UP]:
+                self.input_acc[1] = -self.input_acc_value
+                is_moving_vert ^= True
+            if not is_moving_vert:
+                self.input_acc[1] = 0.0
 
             # Logic
             for _ in range(PHYSICS_SUBSTEPS):
