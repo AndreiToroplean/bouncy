@@ -49,23 +49,23 @@ class Game:
 
             is_moving_horiz = False
             if keys_pressed[pg.K_LEFT]:
-                self.input_acc[0] = -self.input_acc_value
+                self.input_action[0] = -self.input_action_value
                 is_moving_horiz ^= True
             if keys_pressed[pg.K_RIGHT]:
-                self.input_acc[0] = self.input_acc_value
+                self.input_action[0] = self.input_action_value
                 is_moving_horiz ^= True
             if not is_moving_horiz:
-                self.input_acc[0] = 0.0
+                self.input_action[0] = 0.0
 
             is_moving_vert = False
             if keys_pressed[pg.K_DOWN]:
-                self.input_acc[1] = self.input_acc_value
+                self.input_action[1] = self.input_action_value
                 is_moving_vert ^= True
             if keys_pressed[pg.K_UP]:
-                self.input_acc[1] = -self.input_acc_value
+                self.input_action[1] = -self.input_action_value
                 is_moving_vert ^= True
             if not is_moving_vert:
-                self.input_acc[1] = 0.0
+                self.input_action[1] = 0.0
 
             # Logic
             for _ in range(PHYSICS_SUBSTEPS):
