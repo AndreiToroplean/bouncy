@@ -1,20 +1,39 @@
 import pygame as pg
 import numpy as np
 
-BLACK = pg.Color(0, 0, 0)
-GREY = pg.Color(128, 128, 128)
-WHITE = pg.Color(255, 255, 255)
-FPS = 60
+from ball import Ball
+from global_params import BLACK, WHITE, FPS, PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, FULL_SCREEN, DEBUG
 
 
 class Game:
     def __init__(self):
-        self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+        pg.init()
+        if FULL_SCREEN:
+            self.screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+        else:
+            self.screen = pg.display.set_mode((800, 600))
         self.screen_rect = self.screen.get_rect()
         self.clock = pg.time.Clock()
+        self.font = pg.font.SysFont(pg.font.get_default_font(), 24)
+
+        self.len_der = INPUT_DERIVATIVE
+        self.input_action_value = 1000.0 / (FPS * PHYSICS_SUBSTEPS) ** self.len_der
+        self.input_action = np.array((0.0, 0.0))
+
+        self.ball = Ball(
+            init_pos=np.array(self.screen_rect.center, dtype=np.float64),
+
+            len_der=self.len_der,
+
+            env_bbox=self.screen_rect,
+
+            radius=20,
+            restitution=0.95,
+
+            color=WHITE
+            )
 
     def __enter__(self):
-        pg.init()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -23,15 +42,43 @@ class Game:
     def main_loop(self):
         while True:
             # Inputs
-            for event in pg.event.get():
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_ESCAPE:
-                        return
+            keys_pressed = pg.key.get_pressed()
+
+            if keys_pressed[pg.K_ESCAPE] or pg.event.peek(pg.QUIT):
+                return
+
+            is_moving_horiz = False
+            if keys_pressed[pg.K_LEFT]:
+                self.input_action[0] = -self.input_action_value
+                is_moving_horiz ^= True
+            if keys_pressed[pg.K_RIGHT]:
+                self.input_action[0] = self.input_action_value
+                is_moving_horiz ^= True
+            if not is_moving_horiz:
+                self.input_action[0] = 0.0
+
+            is_moving_vert = False
+            if keys_pressed[pg.K_DOWN]:
+                self.input_action[1] = self.input_action_value
+                is_moving_vert ^= True
+            if keys_pressed[pg.K_UP]:
+                self.input_action[1] = -self.input_action_value
+                is_moving_vert ^= True
+            if not is_moving_vert:
+                self.input_action[1] = 0.0
 
             # Logic
+            for _ in range(PHYSICS_SUBSTEPS):
+                self.ball.run_physics_step(self.input_action)
 
             # Graphics
             self.screen.fill(BLACK)
+
+            self.ball.draw(self.screen)
+
+            if DEBUG:
+                fps_surf = self.font.render(f"{self.clock.get_fps():.1f}", True, WHITE)
+                self.screen.blit(fps_surf, (20, 20))
 
             pg.display.flip()
 
