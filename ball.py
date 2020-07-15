@@ -7,8 +7,9 @@ from global_params import N_PHYSICS_SUBSTEPS
 class Ball:
     def __init__(self, init_w_pos, len_der, radius, restitution, color):
         self.w_pos_der = []
+        self._len_der = len_der
 
-        for index in range(len_der):
+        for index in range(self._len_der):
             if index == 0:
                 self.w_pos_der.append(init_w_pos)
                 continue
@@ -27,34 +28,39 @@ class Ball:
     def w_pos(self, value):
         self.w_pos_der[0] = value
 
-    def _run_physics_step(self, input_action):
-        for index in reversed(range(len_der := len(self.w_pos_der))):
-            if index == len_der-1:
-                new_val = self.w_pos_der[index] + input_action
-            else:
-                new_val = self.w_pos_der[index] + self.w_pos_der[index + 1]
+    def _run_physics_step(self, colliders):
+        for index in reversed(range(self._len_der - 1)):
+            new_val = self.w_pos_der[index] + self.w_pos_der[index + 1]
             if index != 0:
                 self.w_pos_der[index] = new_val
 
-        # new_val = self._collide(new_val, self.env_bbox.bottom, 1, +1)
-        # new_val = self._collide(new_val, self.env_bbox.top, 1, -1)
-        # new_val = self._collide(new_val, self.env_bbox.left, 0, -1)
-        # new_val = self._collide(new_val, self.env_bbox.right, 0, +1)
+        for collider in colliders:
+            pass
+            if self.w_pos_der[1][1] > 0:
+                new_val = self._collide(new_val, *collider.bottom, collider.top[0])
+            elif self.w_pos_der[1][1] < 0:
+                new_val = self._collide(new_val, *collider.top, collider.bottom[0])
+            if self.w_pos_der[1][0] > 0:
+                new_val = self._collide(new_val, *collider.left, collider.right[0])
+            elif self.w_pos_der[1][0] < 0:
+                new_val = self._collide(new_val, *collider.right, collider.left[0])
+
         self.w_pos = new_val
 
-    def run_physics(self, input_action, n_substeps=N_PHYSICS_SUBSTEPS):
+    def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
+        self.w_pos_der[-1] = input_action
         for _ in range(n_substeps):
-            self._run_physics_step(input_action)
+            self._run_physics_step(colliders)
 
-    def _collide(self, new_pos, bound_env, dim, direction, threshold=0.1):
-        if direction * new_pos[dim] + self.radius > direction * bound_env:
+    def _collide(self, new_pos, bound, dim, dir_, other_bound, threshold=0.1):
+        if dir_ * other_bound > dir_ * new_pos[dim] + self.radius > dir_ * bound:
             try:
                 self.w_pos_der[1][dim] *= -1 * self.restitution
             except IndexError:
                 pass
             new_pos[dim] -= (
-                (new_pos[dim] + direction * self.radius - bound_env) * (1 + self.restitution)
-                + direction * threshold
+                    (new_pos[dim] + dir_ * self.radius - bound) * (1 + self.restitution)
+                    + dir_ * threshold
                 )
         return new_pos
 

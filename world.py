@@ -12,10 +12,12 @@ class World:
                 (camera_pix_size[0]/2, camera_pix_size[1]*(+0.5)),
                 ),
             Rectangle(
-                (-camera_pix_size[0]/2, camera_pix_size[1]*(-0.5+1/20)),
-                (camera_pix_size[0]/2, camera_pix_size[1]*(-0.5)),
+                (-camera_pix_size[0]/2, camera_pix_size[1]*(-0.5)),
+                (camera_pix_size[0]/2, camera_pix_size[1]*(-0.5+1/20)),
                 ),
             ]
+        self.colliders = []
+        self.colliders += self.borders
 
     def draw(self, camera):
         for border in self.borders:

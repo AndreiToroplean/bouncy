@@ -14,8 +14,8 @@ class Game:
 
         self._camera = Camera()
 
-        self._len_der = INPUT_DERIVATIVE
-        self._input_action_value = 1000.0 / (FPS * N_PHYSICS_SUBSTEPS) ** self._len_der
+        self._len_der = INPUT_DERIVATIVE + 1
+        self._input_action_value = 1000.0 / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
         self._input_action = np.array([0.0, 0.0])
 
         self._ball = Ball(
@@ -66,7 +66,7 @@ class Game:
                 self._input_action[1] = 0.0
 
             # Logic
-            self._ball.run_physics(self._input_action)
+            self._ball.run_physics(self._input_action, self._world.colliders)
             self._camera.req_move(self._ball.w_pos)
             self._world.update_borders(self._camera.w_pos)
 
