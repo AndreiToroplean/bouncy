@@ -12,7 +12,7 @@ class Ball:
             if index == 0:
                 self.w_pos_der.append(init_w_pos)
                 continue
-            self.w_pos_der.append(np.array((0.0, 0.0)))
+            self.w_pos_der.append(np.array([0.0, 0.0]))
 
         self.radius = radius
         self.restitution = restitution

@@ -4,6 +4,7 @@ import numpy as np
 from ball import Ball
 from camera import Camera
 from global_params import WHITE, FPS, N_PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, DEBUG
+from world import World
 
 
 class Game:
@@ -11,22 +12,24 @@ class Game:
         pg.init()
         pg.mouse.set_visible(False)
 
-        self.camera = Camera()
+        self._camera = Camera()
 
-        self.len_der = INPUT_DERIVATIVE
-        self.input_action_value = 1000.0 / (FPS * N_PHYSICS_SUBSTEPS) ** self.len_der
-        self.input_action = np.array((0.0, 0.0))
+        self._len_der = INPUT_DERIVATIVE
+        self._input_action_value = 1000.0 / (FPS * N_PHYSICS_SUBSTEPS) ** self._len_der
+        self._input_action = np.array([0.0, 0.0])
 
-        self.ball = Ball(
-            init_w_pos=np.array((0.0, 0.0)),
+        self._ball = Ball(
+            init_w_pos=np.array([0.0, 0.0]),
 
-            len_der=self.len_der,
+            len_der=self._len_der,
 
             radius=20,
             restitution=0.75,
 
             color=WHITE
             )
+
+        self._world = World(self._camera.pix_size)
 
     def __enter__(self):
         return self
@@ -44,34 +47,36 @@ class Game:
 
             is_moving_horiz = False
             if keys_pressed[pg.K_LEFT]:
-                self.input_action[0] = -self.input_action_value
+                self._input_action[0] = -self._input_action_value
                 is_moving_horiz ^= True
             if keys_pressed[pg.K_RIGHT]:
-                self.input_action[0] = self.input_action_value
+                self._input_action[0] = self._input_action_value
                 is_moving_horiz ^= True
             if not is_moving_horiz:
-                self.input_action[0] = 0.0
+                self._input_action[0] = 0.0
 
             is_moving_vert = False
             if keys_pressed[pg.K_DOWN]:
-                self.input_action[1] = -self.input_action_value
+                self._input_action[1] = -self._input_action_value
                 is_moving_vert ^= True
             if keys_pressed[pg.K_UP]:
-                self.input_action[1] = self.input_action_value
+                self._input_action[1] = self._input_action_value
                 is_moving_vert ^= True
             if not is_moving_vert:
-                self.input_action[1] = 0.0
+                self._input_action[1] = 0.0
 
             # Logic
-            self.ball.run_physics(self.input_action)
-            self.camera.req_move(self.ball.w_pos)
+            self._ball.run_physics(self._input_action)
+            self._camera.req_move(self._ball.w_pos)
+            self._world.update_borders(self._camera.w_pos)
 
             # Graphics
-            self.camera.empty_screen()
+            self._camera.empty_screen()
+            self._world.draw(self._camera)
 
-            self.camera.draw(self.ball)
+            self._camera.draw(self._ball)
 
             if DEBUG:
-                self.camera.draw_debug_info()
+                self._camera.draw_debug_info()
 
-            self.camera.flip_display_and_tick()
+            self._camera.flip_display_and_tick()
