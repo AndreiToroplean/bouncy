@@ -48,7 +48,7 @@ class Ball:
 
         for collider in colliders:
 
-            bounds = collider.w_bounds
+            bounds = collider.w_bounds_shifted
             closest_w_pos = (
                 min(max(bounds[0][0], self.w_pos[0]), bounds[1][0]),
                 min(max(bounds[0][1], self.w_pos[1]), bounds[1][1]),

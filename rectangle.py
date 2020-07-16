@@ -12,33 +12,13 @@ class Rectangle:
 
         self.color = color
 
-    def _get_bound(self, dir_, dim):
-        return self.w_bounds[(-dir_ + 1) // 2, dim], dim, dir_
-
-    @property
-    def right(self):
-        return self._get_bound(dir_=-1, dim=0)
-
-    @property
-    def top(self):
-        return self._get_bound(dir_=-1, dim=1)
-
-    @property
-    def left(self):
-        return self._get_bound(dir_=+1, dim=0)
-
-    @property
-    def bottom(self):
-        return self._get_bound(dir_=+1, dim=1)
-
-    # bottom, 1, +1)
-    # top, 1, -1)
-    # left, 0, +1)
-    # right, 0, -1)
-
     @property
     def w_pos(self):
         return self.w_bounds[0] + self.w_shift
+
+    @property
+    def w_bounds_shifted(self):
+        return self.w_bounds + self.w_shift
 
     def draw(self, screen, pix_shift):
         rect = pg.Rect(
