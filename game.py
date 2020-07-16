@@ -69,13 +69,12 @@ class Game:
             if not is_moving_vert:
                 self._input_action[1] = 0.0
 
-            pg.event.pump()
-
             # Logic
             if self._camera.w_view[1][0] > self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0] - BOUND_OBST_WIDTH[1]/2:
+                height_bound = (self._res[1] * (0.5-BORDER_S_WIDTH) - BALL_RADIUS)
                 w_pos = np.array([
                     self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0] + random.randint(0, BOUND_OBST_DIST[1] - BOUND_OBST_DIST[0]),
-                    random.randint(-(self._res[1] * (0.5-BORDER_S_WIDTH)), (self._res[1] * (0.5-BORDER_S_WIDTH))),
+                    random.randint(-height_bound, height_bound),
                     ])
                 w_size = np.array([
                     random.randint(*BOUND_OBST_WIDTH),
