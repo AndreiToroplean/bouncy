@@ -6,63 +6,62 @@ from global_params import N_PHYSICS_SUBSTEPS
 
 class Ball:
     def __init__(self, init_w_pos, len_der, radius, restitution, color):
-        self.w_pos_der = []
+        self._w_pos_der = []
         self._len_der = len_der
 
         for index in range(self._len_der):
             if index == 0:
-                self.w_pos_der.append(init_w_pos)
+                self._w_pos_der.append(init_w_pos)
                 continue
-            self.w_pos_der.append(np.array([0.0, 0.0]))
+            self._w_pos_der.append(np.array([0.0, 0.0]))
 
-        self.radius = radius
-        self.restitution = restitution
+        self._radius = radius
+        self._restitution = restitution
 
-        self.color = color
+        self._color = color
 
     @property
     def w_pos(self):
-        return self.w_pos_der[0]
+        return self._w_pos_der[0]
 
     @w_pos.setter
     def w_pos(self, value):
-        self.w_pos_der[0] = value
+        self._w_pos_der[0] = value
+
+    @property
+    def w_vel(self):
+        return self._w_pos_der[1]
+
+    @w_vel.setter
+    def w_vel(self, value):
+        self._w_pos_der[1] = value
 
     def _run_physics_step(self, colliders):
         for index in reversed(range(self._len_der - 1)):
-            new_val = self.w_pos_der[index] + self.w_pos_der[index + 1]
-            if index != 0:
-                self.w_pos_der[index] = new_val
+            self._w_pos_der[index] = self._w_pos_der[index] + self._w_pos_der[index + 1]
 
         for collider in colliders:
-            pass
-            if self.w_pos_der[1][1] > 0:
-                new_val = self._collide(new_val, *collider.bottom, collider.top[0])
-            elif self.w_pos_der[1][1] < 0:
-                new_val = self._collide(new_val, *collider.top, collider.bottom[0])
-            if self.w_pos_der[1][0] > 0:
-                new_val = self._collide(new_val, *collider.left, collider.right[0])
-            elif self.w_pos_der[1][0] < 0:
-                new_val = self._collide(new_val, *collider.right, collider.left[0])
+            bounds = collider.w_bounds
+            closest_w_pos = (
+                min(max(bounds[0][0], self.w_pos[0]), bounds[1][0]),
+                min(max(bounds[0][1], self.w_pos[1]), bounds[1][1]),
+                )
+            w_dir = closest_w_pos - self.w_pos
+            w_norm = np.linalg.norm(w_dir)
+            if w_norm > self._radius:
+                continue
 
-        self.w_pos = new_val
+            # r = d−2(d⋅n)n
+            w_normal = -w_dir / w_norm
+            self.w_vel = (self.w_vel - 2 * np.dot(self.w_vel, w_normal) * w_normal)
+            self.w_vel *= self._restitution
+
+            self.w_pos += (self._radius - w_norm) * (self.w_vel / np.linalg.norm(self.w_vel))
 
     def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
-        self.w_pos_der[-1] = input_action
+        self._w_pos_der[-1] = input_action
         for _ in range(n_substeps):
             self._run_physics_step(colliders)
 
-    def _collide(self, new_pos, bound, dim, dir_, other_bound, threshold=0.1):
-        if dir_ * other_bound > dir_ * new_pos[dim] + self.radius > dir_ * bound:
-            try:
-                self.w_pos_der[1][dim] *= -1 * self.restitution
-            except IndexError:
-                pass
-            new_pos[dim] -= (
-                    (new_pos[dim] + dir_ * self.radius - bound) * (1 + self.restitution)
-                    + dir_ * threshold
-                )
-        return new_pos
-
     def draw(self, screen, pix_shift):
-        pg.draw.circle(screen, self.color, pix_shift, self.radius)
+        pg.draw.circle(screen, self._color, pix_shift, self._radius)

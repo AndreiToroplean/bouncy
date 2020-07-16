@@ -8,14 +8,14 @@ from global_params import WHITE
 
 class Rectangle:
     def __init__(self, start_w_pos, end_w_pos, color=WHITE):
-        self._w_bounds = np.array([start_w_pos, end_w_pos], float)
-        self._w_size = self._w_bounds[1] - self._w_bounds[0]
+        self.w_bounds = np.array([start_w_pos, end_w_pos], float)
+        self._w_size = self.w_bounds[1] - self.w_bounds[0]
         self.w_shift = np.array([0.0, 0.0])
 
         self.color = color
 
     def _get_bound(self, dir_, dim):
-        return self._w_bounds[(-dir_+1)//2, dim], dim, dir_
+        return self.w_bounds[(-dir_ + 1) // 2, dim], dim, dir_
 
     @property
     def right(self):
@@ -40,7 +40,7 @@ class Rectangle:
 
     @property
     def w_pos(self):
-        return self._w_bounds[0] + self.w_shift
+        return self.w_bounds[0] + self.w_shift
 
     def draw(self, screen, pix_shift):
         rect = pg.Rect(
