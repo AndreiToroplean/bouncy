@@ -1,9 +1,12 @@
+import random
+
 import pygame as pg
 import numpy as np
 
 from ball import Ball
 from camera import Camera
-from global_params import WHITE, FPS, N_PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, DEBUG
+from global_params import WHITE, FPS, N_PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, DEBUG, \
+    BALL_RADIUS, BOUND_OBST_DIST, BOUND_OBST_WIDTH, BOUND_OBST_HEIGHT, BORDER_S_WIDTH
 from world import World
 
 
@@ -12,7 +15,10 @@ class Game:
         pg.init()
         pg.mouse.set_visible(False)
 
+        random.seed(0)
+
         self._camera = Camera()
+        self._res = self._camera.pix_size
 
         self._len_der = INPUT_DERIVATIVE + 1
         self._input_action_value = 1000.0 / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
@@ -23,16 +29,15 @@ class Game:
 
             len_der=self._len_der,
 
-            radius=20,
+            radius=BALL_RADIUS,
             restitution=0.75,
 
             color=WHITE
             )
 
-        self._world = World(self._camera.pix_size)
+        self._world = World(self._res)
 
-        for x in range(0, 300, 100):
-            self._world.spawn_obstacle(np.array([x, 0.0]), np.array([50.0, 50.0]), self._camera.pix_size)
+        self._latest_obstacle_w_pos = np.array([0.0, 0.0])
 
     def __enter__(self):
         return self
@@ -69,6 +74,18 @@ class Game:
                 self._input_action[1] = 0.0
 
             # Logic
+            if self._camera.w_view[1][0] > self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0]:
+                w_pos = np.array([
+                    self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0] + random.randint(0, BOUND_OBST_DIST[1] - BOUND_OBST_DIST[0]),
+                    random.randint(-(self._res[1] * (0.5-BORDER_S_WIDTH)), (self._res[1] * (0.5-BORDER_S_WIDTH))),
+                    ])
+                w_size = np.array([
+                    random.randint(*BOUND_OBST_WIDTH),
+                    random.randint(*BOUND_OBST_HEIGHT),
+                    ])
+                self._world.spawn_obstacle(w_pos, w_size, self._res)
+                self._latest_obstacle_w_pos = w_pos
+
             self._ball.run_physics(self._input_action, self._world.colliders)
             self._camera.req_move(self._ball.w_pos)
             self._world.update_borders(self._camera.w_pos)

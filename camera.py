@@ -17,6 +17,13 @@ class Camera:
         self.w_pos = np.array([0.0, 0.0])
         self.pix_size = np.array(self._screen.get_size())
 
+    @property
+    def w_view(self):
+        return np.array([
+            self.w_pos - self.pix_size / 2,
+            self.w_pos + self.pix_size / 2,
+            ])
+
     def _w_pos_to_pix_shift(self, w_pos):
         return np.floor((w_pos - self.w_pos) * np.array((1, -1)) + self.pix_size / 2).astype(int)
 
