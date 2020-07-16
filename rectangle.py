@@ -1,5 +1,3 @@
-from collections import namedtuple
-
 import pygame as pg
 import numpy as np
 

@@ -1,3 +1,5 @@
+from math import isclose
+
 import pygame as pg
 import numpy as np
 
@@ -36,11 +38,16 @@ class Ball:
     def w_vel(self, value):
         self._w_pos_der[1] = value
 
-    def _run_physics_step(self, colliders):
+    def _run_physics_step(self, colliders, threshold=0.01):
         for index in reversed(range(self._len_der - 1)):
             self._w_pos_der[index] = self._w_pos_der[index] + self._w_pos_der[index + 1]
 
+        w_speed = np.linalg.norm(self.w_vel)
+        if isclose(w_speed, 0.0):
+            return
+
         for collider in colliders:
+
             bounds = collider.w_bounds
             closest_w_pos = (
                 min(max(bounds[0][0], self.w_pos[0]), bounds[1][0]),
@@ -56,7 +63,7 @@ class Ball:
             self.w_vel = (self.w_vel - 2 * np.dot(self.w_vel, w_normal) * w_normal)
             self.w_vel *= self._restitution
 
-            self.w_pos += (self._radius - w_norm) * (self.w_vel / np.linalg.norm(self.w_vel))
+            self.w_pos += (self._radius - w_norm + threshold) * (self.w_vel / w_speed)
 
     def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
         self._w_pos_der[-1] = input_action

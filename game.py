@@ -31,6 +31,9 @@ class Game:
 
         self._world = World(self._camera.pix_size)
 
+        for x in range(0, 300, 100):
+            self._world.spawn_obstacle(np.array([x, 0.0]), np.array([50.0, 50.0]), self._camera.pix_size)
+
     def __enter__(self):
         return self
 
