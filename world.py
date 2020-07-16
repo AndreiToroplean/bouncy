@@ -1,7 +1,7 @@
 import pygame as pg
 import numpy as np
 
-from global_params import BORDER_S_WIDTH
+from global_params import BORDER_S_WIDTH, MAX_N_OBSTS
 from obstacle import Obstacle
 from rectangle import Rectangle
 
@@ -40,5 +40,7 @@ class World:
             border.w_shift = camera_w_pos
 
     def spawn_obstacle(self, w_pos, w_size, res):
+        if len(self._obstacles) == MAX_N_OBSTS:
+            del self._obstacles[0]
         obstacle = Obstacle(w_pos, w_size, res)
         self._obstacles.append(obstacle)

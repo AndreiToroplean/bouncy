@@ -5,8 +5,8 @@ import numpy as np
 
 from ball import Ball
 from camera import Camera
-from global_params import WHITE, FPS, N_PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, DEBUG, \
-    BALL_RADIUS, BOUND_OBST_DIST, BOUND_OBST_WIDTH, BOUND_OBST_HEIGHT, BORDER_S_WIDTH
+from global_params import FPS, N_PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, DEBUG, \
+    BALL_RADIUS, BOUND_OBST_DIST, BOUND_OBST_WIDTH, BOUND_OBST_HEIGHT, BORDER_S_WIDTH, BALL_ACTION_FORCE
 from world import World
 
 
@@ -21,23 +21,19 @@ class Game:
         self._res = self._camera.pix_size
 
         self._len_der = INPUT_DERIVATIVE + 1
-        self._input_action_value = 1000.0 / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
+        self._input_action_force = BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
         self._input_action = np.array([0.0, 0.0])
 
         self._ball = Ball(
             init_w_pos=np.array([0.0, 0.0]),
-
             len_der=self._len_der,
-
             radius=BALL_RADIUS,
-            restitution=0.75,
-
-            color=WHITE
             )
 
         self._world = World(self._res)
 
         self._latest_obstacle_w_pos = np.array([0.0, 0.0])
+        self._world.spawn_obstacle(np.array([-400.0, 0]), np.array([200.0, 0.0]), self._res)
 
     def __enter__(self):
         return self
@@ -55,26 +51,28 @@ class Game:
 
             is_moving_horiz = False
             if keys_pressed[pg.K_LEFT]:
-                self._input_action[0] = -self._input_action_value
+                self._input_action[0] = -self._input_action_force
                 is_moving_horiz ^= True
             if keys_pressed[pg.K_RIGHT]:
-                self._input_action[0] = self._input_action_value
+                self._input_action[0] = self._input_action_force
                 is_moving_horiz ^= True
             if not is_moving_horiz:
                 self._input_action[0] = 0.0
 
             is_moving_vert = False
             if keys_pressed[pg.K_DOWN]:
-                self._input_action[1] = -self._input_action_value
+                self._input_action[1] = -self._input_action_force
                 is_moving_vert ^= True
             if keys_pressed[pg.K_UP]:
-                self._input_action[1] = self._input_action_value
+                self._input_action[1] = self._input_action_force
                 is_moving_vert ^= True
             if not is_moving_vert:
                 self._input_action[1] = 0.0
 
+            pg.event.pump()
+
             # Logic
-            if self._camera.w_view[1][0] > self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0]:
+            if self._camera.w_view[1][0] > self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0] - BOUND_OBST_WIDTH[1]/2:
                 w_pos = np.array([
                     self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0] + random.randint(0, BOUND_OBST_DIST[1] - BOUND_OBST_DIST[0]),
                     random.randint(-(self._res[1] * (0.5-BORDER_S_WIDTH)), (self._res[1] * (0.5-BORDER_S_WIDTH))),
