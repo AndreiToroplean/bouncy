@@ -80,7 +80,7 @@ class Game:
             self._action_queue.put((action_horiz, action_vert))
 
             # Inputs application
-            if self._action_queue.qsize() > self._progress * LATENCY_FACTOR:
+            if self._action_queue.qsize() > (self._progress * LATENCY_FACTOR) ** 2:
                 action_horiz, action_vert = self._action_queue.get()
             else:
                 action_horiz, action_vert = Action.stay_horiz, Action.stay_vert
