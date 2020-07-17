@@ -75,8 +75,9 @@ class Ball:
             self.w_pos += (self.radius - w_norm) * (self.w_vel / w_speed) + threshold * w_normal
 
     def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
-        if self._len_der >= 3:
-            self.w_acc -= (self.w_vel * self._friction_factor) ** 2
+        w_speed = np.linalg.norm(self.w_vel)
+        if self._len_der >= 3 and not isclose(w_speed, 0.0):
+            self.w_acc -= (self.w_vel / w_speed) * ((w_speed * self._friction_factor) ** 2)
         self.w_pos_der[-1] = input_action
         for _ in range(n_substeps):
             self._run_physics_step(colliders)
