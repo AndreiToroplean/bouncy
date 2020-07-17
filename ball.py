@@ -17,11 +17,11 @@ class Ball:
                 continue
             self.w_pos_der.append(np.array([0.0, 0.0]))
 
-        self._radius = radius
+        self.radius = radius
         self._restitution = BALL_RESTITUTION
         self._friction_factor = BALL_FRICTION / (FPS * N_PHYSICS_SUBSTEPS)
 
-        self._color = color
+        self.color = color
 
     @property
     def w_pos(self):
@@ -64,7 +64,7 @@ class Ball:
                 )
             w_dir = closest_w_pos - self.w_pos
             w_norm = np.linalg.norm(w_dir)
-            if w_norm > self._radius:
+            if w_norm > self.radius:
                 continue
 
             # r = d−2(d⋅n)n
@@ -72,7 +72,7 @@ class Ball:
             self.w_vel = (self.w_vel - 2 * np.dot(self.w_vel, w_normal) * w_normal)
             self.w_vel *= self._restitution
 
-            self.w_pos += (self._radius - w_norm) * (self.w_vel / w_speed) + threshold * w_normal
+            self.w_pos += (self.radius - w_norm) * (self.w_vel / w_speed) + threshold * w_normal
 
     def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
         if self._len_der >= 3:
@@ -82,4 +82,4 @@ class Ball:
             self._run_physics_step(colliders)
 
     def draw(self, screen, pix_shift):
-        pg.draw.circle(screen, self._color, pix_shift, self._radius)
+        pg.draw.circle(screen, self.color, pix_shift, self.radius)

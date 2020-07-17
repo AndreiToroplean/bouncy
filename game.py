@@ -1,4 +1,5 @@
 import random
+from copy import deepcopy
 from enum import Enum
 from math import log
 from queue import SimpleQueue
@@ -10,7 +11,8 @@ from ball import Ball
 from camera import Camera
 from global_params import FPS, N_PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, DEBUG, \
     BALL_RADIUS, BOUND_OBST_DIST, BOUND_OBST_WIDTH, BOUND_OBST_HEIGHT, BORDER_S_WIDTH, BALL_ACTION_FORCE, \
-    LATENCY_FACTOR, GREY
+    LATENCY_FACTOR, GREY, RED, ENEMY_SPEED, ENEMY_WAIT, ENEMY_ADD_SPEED
+from rectangle import Rectangle
 from world import World
 
 
@@ -19,7 +21,7 @@ class Game:
         pg.init()
         pg.mouse.set_visible(False)
 
-        random.seed(0)
+        # random.seed(0)
 
         self._camera = Camera()
         self._res = self._camera.pix_size
@@ -47,17 +49,17 @@ class Game:
             radius=BALL_RADIUS,
             )
 
-        self._ball_phantom = Ball(
-            init_w_pos=np.array([0.0, 0.0]),
-            len_der=self._len_der,
-            radius=BALL_RADIUS,
-            color=GREY,
-            )
+        self._ball_phantom = deepcopy(self._ball)
+        self._ball_phantom.color = GREY
 
         self._world = World(self._res)
 
         self._latest_obstacle_w_pos = np.array([0.0, 0.0])
         self._world.spawn_obstacle(np.array([-self._res[0]/4, 0.0]), np.array([-self._res[0]/8, 0.0]), self._res)
+
+        self._enemy = Rectangle(*self._camera.w_view, color=RED)
+        self._enemy.w_shift = np.array([-self._res[0] * 3/4, 0])
+        self._enemy_moving = False
 
     def __enter__(self):
         return self
@@ -128,6 +130,15 @@ class Game:
             self._ball.run_physics(self._action_vec, self._world.colliders)
             self._ball_phantom.run_physics(self._action_vec_phantom, self._world.colliders)
 
+            # Enemy
+            if pg.time.get_ticks() > ENEMY_WAIT:
+                self._enemy_moving = True
+            if self._enemy_moving:
+                self._enemy.w_shift[0] += ENEMY_SPEED + log(max(1, ENEMY_ADD_SPEED * self._progress))
+
+            if self._enemy.w_view[1][0] - self._ball.radius > self._ball.w_pos[0]:
+                return
+
             if not ((self._camera.w_view[0] < self._ball_phantom.w_pos).all()
                     and (self._ball_phantom.w_pos < self._camera.w_view[1]).all()):
                 for index in range(self._len_der):
@@ -138,10 +149,13 @@ class Game:
 
             # Graphics
             self._camera.empty_screen()
-            self._world.draw(self._camera)
 
             self._camera.draw(self._ball_phantom)
             self._camera.draw(self._ball)
+
+            self._camera.draw(self._enemy)
+
+            self._world.draw(self._camera)
 
             if DEBUG:
                 self._camera.draw_debug_info()

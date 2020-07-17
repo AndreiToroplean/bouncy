@@ -17,6 +17,13 @@ class Rectangle:
         return self.w_bounds[0] + self.w_shift
 
     @property
+    def w_view(self):
+        return np.array([
+            self.w_bounds[0] + self.w_shift,
+            self.w_bounds[1] + self.w_shift,
+            ])
+
+    @property
     def w_bounds_shifted(self):
         return self.w_bounds + self.w_shift
 
