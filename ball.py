@@ -7,49 +7,49 @@ from global_params import N_PHYSICS_SUBSTEPS, BALL_RESTITUTION, WHITE, BALL_FRIC
 
 
 class Ball:
-    def __init__(self, init_w_pos, len_der, radius):
-        self._w_pos_der = []
+    def __init__(self, init_w_pos, len_der, radius, color=WHITE):
+        self.w_pos_der = []
         self._len_der = len_der
 
         for index in range(self._len_der):
             if index == 0:
-                self._w_pos_der.append(init_w_pos)
+                self.w_pos_der.append(init_w_pos)
                 continue
-            self._w_pos_der.append(np.array([0.0, 0.0]))
+            self.w_pos_der.append(np.array([0.0, 0.0]))
 
         self._radius = radius
         self._restitution = BALL_RESTITUTION
         self._friction_factor = BALL_FRICTION / (FPS * N_PHYSICS_SUBSTEPS)
 
-        self._color = WHITE
+        self._color = color
 
     @property
     def w_pos(self):
-        return self._w_pos_der[0]
+        return self.w_pos_der[0]
 
     @w_pos.setter
     def w_pos(self, value):
-        self._w_pos_der[0] = value
+        self.w_pos_der[0] = value
 
     @property
     def w_vel(self):
-        return self._w_pos_der[1]
+        return self.w_pos_der[1]
 
     @w_vel.setter
     def w_vel(self, value):
-        self._w_pos_der[1] = value
+        self.w_pos_der[1] = value
 
     @property
     def w_acc(self):
-        return self._w_pos_der[2]
+        return self.w_pos_der[2]
 
     @w_acc.setter
     def w_acc(self, value):
-        self._w_pos_der[2] = value
+        self.w_pos_der[2] = value
 
     def _run_physics_step(self, colliders, threshold=0.01):
         for index in reversed(range(self._len_der - 1)):
-            self._w_pos_der[index] = self._w_pos_der[index] + self._w_pos_der[index + 1]
+            self.w_pos_der[index] = self.w_pos_der[index] + self.w_pos_der[index + 1]
 
         w_speed = np.linalg.norm(self.w_vel)
         if isclose(w_speed, 0.0):
@@ -77,7 +77,7 @@ class Ball:
     def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
         if self._len_der >= 3:
             self.w_acc -= (self.w_vel * self._friction_factor) ** 2
-        self._w_pos_der[-1] = input_action
+        self.w_pos_der[-1] = input_action
         for _ in range(n_substeps):
             self._run_physics_step(colliders)
 
