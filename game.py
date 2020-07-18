@@ -3,7 +3,7 @@ import json
 import random
 from copy import deepcopy
 from enum import Enum
-from math import log
+from math import log, exp
 from queue import SimpleQueue
 
 import pygame as pg
@@ -12,7 +12,7 @@ import numpy as np
 from ball import Ball
 from camera import Camera
 from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, C_DARK_GREY, C_RED, SETTINGS, SEED, SAVES_DIR, \
-    SAVE_PATH, DELAY_BEFORE_QUITTING, LOAD, SAVE
+    SAVE_PATH, DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR
 from rectangle import Rectangle
 from world import World
 
@@ -22,15 +22,15 @@ class Game:
         pg.init()
         pg.mouse.set_visible(False)
 
-        if SEED is not None:
-            random.seed(SEED)
-
-        self._camera = Camera()
-        self._res = self._camera.res
-
         self._high_score = 0
 
+        self._seed = SEED
+        self._random_state = random.getstate()
+
         self._load()
+
+        if self._seed is not None:
+            random.seed(self._seed)
 
         self._len_der = SETTINGS.INPUT_DERIVATIVE + 1
         self._action_force = SETTINGS.BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
@@ -48,6 +48,8 @@ class Game:
             Action.stay_vert: 0,
             }
 
+        self._camera = None
+        self._res = None
         self._ball = None
         self._ball_phantom = None
         self._world = None
@@ -62,7 +64,10 @@ class Game:
         self._initialize_game()
 
     def _initialize_game(self):
+        random.setstate(self._random_state)
+
         self._camera = Camera()
+        self._res = self._camera.res
 
         self._ball = Ball(
             init_w_pos=np.array([0.0, 0.0]),
@@ -198,7 +203,7 @@ class Game:
             self._enemy_moving = True
 
         if self._enemy_moving:
-            self._enemy.w_shift[0] += SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_ADD_SPEED * self._progress))
+            self._enemy.w_shift[0] += SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_LOGADD_SPEED * self._progress))
 
         if self._death_time is None and self._enemy.w_view[1][0] - self._ball.radius > self._ball.w_pos[0]:
             self._death_time = self._camera.time
@@ -211,7 +216,7 @@ class Game:
         self._world.update_borders(self._camera.w_pos)
 
         # Score
-        self._score = max(self._score, int(self._progress))
+        self._score = max(self._score, int(self._progress * SCORE_ADD_FACTOR + exp(self._progress * SCORE_EXPADD_FACTOR)))
         self._high_score = max(self._high_score, self._score)
 
     def _draw_graphics(self):
@@ -246,11 +251,8 @@ class Game:
         except FileNotFoundError:
             pass
         else:
-            seed = data["seed"]
+            self._seed = data["seed"]
             difficulty_preset_nb = data["difficulty_preset_nb"]
-
-            if seed is not None:
-                random.seed(seed)
             SETTINGS.set_difficulty(difficulty_preset_nb)
 
             self._high_score = data["high_score"]

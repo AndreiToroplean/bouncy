@@ -49,7 +49,7 @@ class Camera:
     def draw_score(self, score, high_score):
         pix_pos = 32, 32
 
-        score_surf = self._medium_font.render(f"{score}", True, C_BLACK)
+        score_surf = self._medium_font.render(f"SCORE: {score}", True, C_BLACK)
         score_pix_size = score_surf.get_size()
         self._screen.blit(score_surf, (
                 pix_pos[0],
