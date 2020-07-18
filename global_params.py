@@ -11,10 +11,11 @@ DEBUG_RES = 1280, 720
 if DEBUG:
     FULL_SCREEN = False
 
-BLACK = pg.Color(0, 0, 0)
-DARK_GREY = pg.Color(32, 32, 32)
-WHITE = pg.Color(255, 255, 255)
-RED = pg.Color(255, 0, 0)
+C_BLACK = pg.Color(0, 0, 0)
+C_DARK_GREY = pg.Color(32, 32, 32)
+C_WHITE = pg.Color(255, 255, 255)
+C_RED = pg.Color(255, 0, 0)
+C_END = pg.Color(150, 20, 20)
 
 FPS = 60
 DELAY_BEFORE_QUITTING = 1500
@@ -27,6 +28,9 @@ CAM_DAMPING_FACTOR = 10
 SEED = 1
 DIFFICULTY_PRESET_NB = 2
 SETTINGS = Settings(difficulty_preset_nb=DIFFICULTY_PRESET_NB, fps=FPS)
+
+LOAD = True
+SAVE = True
 
 SAVES_DIR = "saves"
 SAVE_PROFILE = "player"

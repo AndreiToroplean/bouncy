@@ -3,11 +3,11 @@ from math import isclose
 import pygame as pg
 import numpy as np
 
-from global_params import N_PHYSICS_SUBSTEPS, WHITE, FPS
+from global_params import N_PHYSICS_SUBSTEPS, C_WHITE, FPS
 
 
 class Ball:
-    def __init__(self, init_w_pos, len_der, radius, restitution, friction, color=WHITE):
+    def __init__(self, init_w_pos, len_der, radius, restitution, friction, color=C_WHITE):
         self.w_pos_der = []
         self._len_der = len_der
 

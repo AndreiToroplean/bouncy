@@ -1,11 +1,11 @@
 import pygame as pg
 import numpy as np
 
-from global_params import WHITE
+from global_params import C_WHITE
 
 
 class Rectangle:
-    def __init__(self, start_w_pos, end_w_pos, color=WHITE):
+    def __init__(self, start_w_pos, end_w_pos, color=C_WHITE):
         self.w_bounds = np.array([start_w_pos, end_w_pos], float)
         self._w_size = self.w_bounds[1] - self.w_bounds[0]
         self.w_shift = np.array([0.0, 0.0])
