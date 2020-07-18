@@ -15,7 +15,7 @@ C_BLACK = pg.Color(0, 0, 0)
 C_DARK_GREY = pg.Color(32, 32, 32)
 C_WHITE = pg.Color(255, 255, 255)
 C_RED = pg.Color(255, 0, 0)
-C_END = pg.Color(150, 20, 20)
+C_END = pg.Color(150, 50, 50)
 
 FPS = 60
 DRAW_PHANTOM = False

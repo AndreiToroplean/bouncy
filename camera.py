@@ -49,14 +49,14 @@ class Camera:
     def draw_score(self, score, high_score):
         pix_pos = 32, 32
 
-        score_surf = self._medium_font.render(f"SCORE: {score}", True, C_BLACK)
+        score_surf = self._medium_font.render(f"SCORE: {score:,}", True, C_BLACK)
         score_pix_size = score_surf.get_size()
         self._screen.blit(score_surf, (
                 pix_pos[0],
                 self.res[1] - score_pix_size[1] - pix_pos[1]
                 ))
 
-        high_score_surf = self._medium_font.render(f"HIGH SCORE: {high_score:.0f}", True, C_BLACK)
+        high_score_surf = self._medium_font.render(f"HIGH SCORE: {high_score:,}", True, C_BLACK)
         high_score_pix_size = high_score_surf.get_size()
         self._screen.blit(high_score_surf, (
                 self.res[0] - high_score_pix_size[0] - pix_pos[0],
@@ -68,10 +68,14 @@ class Camera:
         debug_info_surf = self._small_font.render(debug_info, True, C_BLACK)
         self._screen.blit(debug_info_surf, (8, 8))
 
-    def draw_end_screen(self):
-        self._screen.fill(C_END, special_flags=pg.BLEND_MULT)
+    def draw_end_screen(self, score_text):
         self._screen.fill(C_END, special_flags=pg.BLEND_ADD)
+        self._screen.fill(C_END, special_flags=pg.BLEND_MULT)
 
-        end_text = self._large_font.render("REPLAY?", True, C_WHITE)
-        end_text_pix_size = np.array(end_text.get_size())
-        self._screen.blit(end_text, self.res/2 - end_text_pix_size/2)
+        score_text = self._large_font.render(f"SCORE: {score_text:,}", True, C_WHITE)
+        score_text_pix_size = np.array(score_text.get_size())
+        self._screen.blit(score_text, self.res / 2 - score_text_pix_size / 2)
+
+        replay_text = self._medium_font.render("REPLAY?", True, C_WHITE)
+        replay_text_pix_size = np.array(replay_text.get_size())
+        self._screen.blit(replay_text, self.res / 2 - replay_text_pix_size / 2 + [0, 64])

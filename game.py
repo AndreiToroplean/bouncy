@@ -279,7 +279,7 @@ class Game:
         pg.quit()
 
     def _end_screen(self):
-        self._camera.draw_end_screen()
+        self._camera.draw_end_screen(self._score)
         self._camera.flip_display_and_tick()
         while True:
             keys_pressed = pg.key.get_pressed()
