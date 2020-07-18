@@ -12,7 +12,7 @@ import numpy as np
 from ball import Ball
 from camera import Camera
 from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, C_DARK_GREY, C_RED, SETTINGS, SEED, SAVES_DIR, \
-    SAVE_PATH, DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR
+    SAVE_PATH, DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR, DRAW_PHANTOM
 from rectangle import Rectangle
 from world import World
 
@@ -223,7 +223,8 @@ class Game:
     def _draw_graphics(self):
         self._camera.empty_screen()
 
-        self._camera.draw(self._ball_phantom)
+        if DRAW_PHANTOM:
+            self._camera.draw(self._ball_phantom)
         self._camera.draw(self._ball)
 
         self._camera.draw(self._enemy)
