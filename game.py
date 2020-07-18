@@ -23,14 +23,14 @@ class Game:
         pg.mouse.set_visible(False)
 
         self._high_score = 0
-
         self._seed = SEED
-        self._random_state = random.getstate()
 
         self._load()
 
         if self._seed is not None:
             random.seed(self._seed)
+
+        self._random_state = random.getstate()
 
         self._len_der = SETTINGS.INPUT_DERIVATIVE + 1
         self._action_force = SETTINGS.BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
@@ -105,6 +105,7 @@ class Game:
             # Inputs
             keep_playing = self.get_inputs()
             if not keep_playing:
+                self._save()
                 return False
 
             # Logic
@@ -216,7 +217,7 @@ class Game:
         self._world.update_borders(self._camera.w_pos)
 
         # Score
-        self._score = max(self._score, int(self._progress * SCORE_ADD_FACTOR + exp(self._progress * SCORE_EXPADD_FACTOR)))
+        self._score = max(self._score, int(self._progress * SCORE_ADD_FACTOR + exp(self._progress * SCORE_EXPADD_FACTOR)) - 1)
         self._high_score = max(self._high_score, self._score)
 
     def _draw_graphics(self):
@@ -264,7 +265,7 @@ class Game:
         data = {
             "seed": SEED,
             "difficulty_preset_nb": SETTINGS.DIFFICULTY_PRESET_NB,
-            "high_score": max(self._high_score, self._score)
+            "high_score": self._high_score,
             }
 
         with open(SAVE_PATH, "w") as file:
