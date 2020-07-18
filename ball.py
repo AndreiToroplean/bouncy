@@ -3,11 +3,11 @@ from math import isclose
 import pygame as pg
 import numpy as np
 
-from global_params import N_PHYSICS_SUBSTEPS, BALL_RESTITUTION, WHITE, BALL_FRICTION, FPS
+from global_params import N_PHYSICS_SUBSTEPS, WHITE, FPS
 
 
 class Ball:
-    def __init__(self, init_w_pos, len_der, radius, color=WHITE):
+    def __init__(self, init_w_pos, len_der, radius, restitution, friction, color=WHITE):
         self.w_pos_der = []
         self._len_der = len_der
 
@@ -18,8 +18,8 @@ class Ball:
             self.w_pos_der.append(np.array([0.0, 0.0]))
 
         self.radius = radius
-        self._restitution = BALL_RESTITUTION
-        self._friction_factor = BALL_FRICTION / (FPS * N_PHYSICS_SUBSTEPS)
+        self._restitution = restitution
+        self._friction_factor = friction / (FPS * N_PHYSICS_SUBSTEPS)
 
         self.color = color
 

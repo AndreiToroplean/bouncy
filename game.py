@@ -9,9 +9,7 @@ import numpy as np
 
 from ball import Ball
 from camera import Camera
-from global_params import FPS, N_PHYSICS_SUBSTEPS, INPUT_DERIVATIVE, DEBUG, \
-    BALL_RADIUS, BOUND_OBST_DIST, BOUND_OBST_WIDTH, BOUND_OBST_HEIGHT, BORDER_S_WIDTH, BALL_ACTION_FORCE, \
-    LATENCY_FACTOR, GREY, RED, ENEMY_SPEED, ENEMY_WAIT, ENEMY_ADD_SPEED
+from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, GREY, RED, SETTINGS, SEED
 from rectangle import Rectangle
 from world import World
 
@@ -21,13 +19,14 @@ class Game:
         pg.init()
         pg.mouse.set_visible(False)
 
-        # random.seed(0)
+        if SEED is not None:
+            random.seed(SEED)
 
         self._camera = Camera()
         self._res = self._camera.pix_size
 
-        self._len_der = INPUT_DERIVATIVE + 1
-        self._action_force = BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
+        self._len_der = SETTINGS.INPUT_DERIVATIVE + 1
+        self._action_force = SETTINGS.BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
         self._action_vec = np.array([0.0, 0.0])
         self._action_vec_phantom = np.array([0.0, 0.0])
 
@@ -46,7 +45,9 @@ class Game:
         self._ball = Ball(
             init_w_pos=np.array([0.0, 0.0]),
             len_der=self._len_der,
-            radius=BALL_RADIUS,
+            radius=SETTINGS.BALL_RADIUS,
+            restitution=SETTINGS.BALL_RESTITUTION,
+            friction=SETTINGS.BALL_FRICTION,
             )
 
         self._ball_phantom = deepcopy(self._ball)
@@ -102,7 +103,7 @@ class Game:
             self._action_queue.put(action)
 
             # Inputs application
-            if self._action_queue.qsize() > log(max(1, self._progress * LATENCY_FACTOR)):
+            if self._action_queue.qsize() > log(max(1, self._progress * SETTINGS.LATENCY_FACTOR)):
                 self._action = self._action_queue.get()
 
             self._action_vec[0] = self._action_map[self._action[0]] * self._action_force
@@ -113,15 +114,15 @@ class Game:
 
             # Logic
             # Obstacles
-            if self._camera.w_view[1][0] > self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0] - BOUND_OBST_WIDTH[1]/2:
-                height_bound = (self._res[1] * (0.5-BORDER_S_WIDTH) - BALL_RADIUS)
+            if self._camera.w_view[1][0] > self._latest_obstacle_w_pos[0] + SETTINGS.BOUND_OBST_DIST[0] - SETTINGS.BOUND_OBST_WIDTH[1]/2:
+                height_bound = (self._res[1] * (0.5-BORDER_S_WIDTH) - SETTINGS.BALL_RADIUS)
                 w_pos = np.array([
-                    self._latest_obstacle_w_pos[0] + BOUND_OBST_DIST[0] + random.randint(0, BOUND_OBST_DIST[1] - BOUND_OBST_DIST[0]),
+                    self._latest_obstacle_w_pos[0] + SETTINGS.BOUND_OBST_DIST[0] + random.randint(0, SETTINGS.BOUND_OBST_DIST[1] - SETTINGS.BOUND_OBST_DIST[0]),
                     random.randint(-height_bound, height_bound),
                     ])
                 w_size = np.array([
-                    random.randint(*BOUND_OBST_WIDTH),
-                    random.randint(*BOUND_OBST_HEIGHT),
+                    random.randint(*SETTINGS.BOUND_OBST_WIDTH),
+                    random.randint(*SETTINGS.BOUND_OBST_HEIGHT),
                     ])
                 self._world.spawn_obstacle(w_pos, w_size, self._res)
                 self._latest_obstacle_w_pos = w_pos
@@ -131,10 +132,10 @@ class Game:
             self._ball_phantom.run_physics(self._action_vec_phantom, self._world.colliders)
 
             # Enemy
-            if pg.time.get_ticks() > ENEMY_WAIT:
+            if pg.time.get_ticks() > SETTINGS.ENEMY_WAIT:
                 self._enemy_moving = True
             if self._enemy_moving:
-                self._enemy.w_shift[0] += ENEMY_SPEED + log(max(1, ENEMY_ADD_SPEED * self._progress))
+                self._enemy.w_shift[0] += SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_ADD_SPEED * self._progress))
 
             if self._enemy.w_view[1][0] - self._ball.radius > self._ball.w_pos[0]:
                 return
