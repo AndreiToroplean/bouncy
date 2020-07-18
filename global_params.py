@@ -2,14 +2,15 @@ import pygame as pg
 
 from settings import Settings
 
-DEBUG = False
+DEBUG = True
 FULL_SCREEN = True
+DEBUG_RES = 1280, 720
 
 if DEBUG:
     FULL_SCREEN = False
 
 BLACK = pg.Color(0, 0, 0)
-GREY = pg.Color(32, 32, 32)
+DARK_GREY = pg.Color(32, 32, 32)
 WHITE = pg.Color(255, 255, 255)
 RED = pg.Color(255, 0, 0)
 

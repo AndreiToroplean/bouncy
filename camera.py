@@ -1,7 +1,7 @@
 import pygame as pg
 import numpy as np
 
-from global_params import FULL_SCREEN, BLACK, WHITE, FPS, CAM_DAMPING_FACTOR
+from global_params import FULL_SCREEN, BLACK, WHITE, FPS, CAM_DAMPING_FACTOR, DEBUG_RES
 from rectangle import Rectangle
 
 
@@ -10,9 +10,12 @@ class Camera:
         if FULL_SCREEN:
             self._screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
         else:
-            self._screen = pg.display.set_mode((800, 600))
+            self._screen = pg.display.set_mode(DEBUG_RES)
         self._clock = pg.time.Clock()
-        self._font = pg.font.SysFont(pg.font.get_default_font(), 24)
+        self.time = 0
+
+        self._debug_font = pg.font.Font("resources/SourceCodePro-Regular.ttf", 16)
+        self._score_font = pg.font.Font("resources/SourceCodePro-Regular.ttf", 32)
 
         self.w_pos = np.array([0.0, 0.0])
         self.pix_size = np.array(self._screen.get_size())
@@ -33,6 +36,7 @@ class Camera:
     def flip_display_and_tick(self):
         pg.display.flip()
         self._clock.tick(FPS)
+        self.time = pg.time.get_ticks()
 
     def req_move(self, w_pos):
         self.w_pos += (w_pos - self.w_pos) * (CAM_DAMPING_FACTOR / FPS) * np.array((1, 0))
@@ -42,5 +46,6 @@ class Camera:
         obj.draw(self._screen, pix_shift)
 
     def draw_debug_info(self):
-        fps_surf = self._font.render(f"{self._clock.get_fps():.1f}", True, WHITE)
-        self._screen.blit(fps_surf, (20, 20))
+        debug_info = f"fps: {self._clock.get_fps():.1f}, time: {self.time/1000:.1f}"
+        debug_info_surf = self._debug_font.render(debug_info, True, BLACK)
+        self._screen.blit(debug_info_surf, (8, 8))

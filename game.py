@@ -9,7 +9,7 @@ import numpy as np
 
 from ball import Ball
 from camera import Camera
-from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, GREY, RED, SETTINGS, SEED
+from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, DARK_GREY, RED, SETTINGS, SEED
 from rectangle import Rectangle
 from world import World
 
@@ -51,7 +51,7 @@ class Game:
             )
 
         self._ball_phantom = deepcopy(self._ball)
-        self._ball_phantom.color = GREY
+        self._ball_phantom.color = DARK_GREY
 
         self._world = World(self._res)
 
@@ -61,6 +61,8 @@ class Game:
         self._enemy = Rectangle(*self._camera.w_view, color=RED)
         self._enemy.w_shift = np.array([-self._res[0] * 3/4, 0])
         self._enemy_moving = False
+
+        self._score = 0
 
     def __enter__(self):
         return self
@@ -132,8 +134,9 @@ class Game:
             self._ball_phantom.run_physics(self._action_vec_phantom, self._world.colliders)
 
             # Enemy
-            if pg.time.get_ticks() > SETTINGS.ENEMY_WAIT:
+            if self._camera.time > SETTINGS.ENEMY_WAIT:
                 self._enemy_moving = True
+
             if self._enemy_moving:
                 self._enemy.w_shift[0] += SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_ADD_SPEED * self._progress))
 
@@ -145,8 +148,14 @@ class Game:
                 for index in range(self._len_der):
                     self._ball_phantom.w_pos_der[index][:] = self._ball.w_pos_der[index]
 
+            # Camera
             self._camera.req_move(self._ball.w_pos)
+
+            # World
             self._world.update_borders(self._camera.w_pos)
+
+            # Score
+            self._score = max(self._score, self._progress)
 
             # Graphics
             self._camera.empty_screen()
