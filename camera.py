@@ -18,17 +18,19 @@ class Camera:
         self._score_font = pg.font.Font("resources/SourceCodePro-Regular.ttf", 32)
 
         self.w_pos = np.array([0.0, 0.0])
-        self.pix_size = np.array(self._screen.get_size())
+        self.res = np.array(self._screen.get_size())
+
+        self.high_score = 0
 
     @property
     def w_view(self):
         return np.array([
-            self.w_pos - self.pix_size / 2,
-            self.w_pos + self.pix_size / 2,
+            self.w_pos - self.res / 2,
+            self.w_pos + self.res / 2,
             ])
 
     def _w_pos_to_pix_shift(self, w_pos):
-        return np.floor((w_pos - self.w_pos) * np.array((1, -1)) + self.pix_size / 2).astype(int)
+        return np.floor((w_pos - self.w_pos) * np.array((1, -1)) + self.res / 2).astype(int)
 
     def empty_screen(self):
         self._screen.fill(BLACK)
@@ -44,6 +46,23 @@ class Camera:
     def draw(self, obj):
         pix_shift = self._w_pos_to_pix_shift(obj.w_pos)
         obj.draw(self._screen, pix_shift)
+
+    def draw_score(self, score):
+        pix_pos = 10, 10
+
+        score_surf = self._score_font.render(f"{score}", True, BLACK)
+        score_pix_size = score_surf.get_size()
+        self._screen.blit(score_surf, (
+                self.res[0] - score_pix_size[0] - pix_pos[0],
+                self.res[1] - score_pix_size[1] - pix_pos[1],
+                ))
+
+        high_score_surf = self._score_font.render(f"HIGH SCORE: {self.high_score:.0f}", True, BLACK)
+        high_score_pix_size = high_score_surf.get_size()
+        self._screen.blit(high_score_surf, (
+                pix_pos[0],
+                self.res[1] - high_score_pix_size[1] - pix_pos[1],
+                ))
 
     def draw_debug_info(self):
         debug_info = f"fps: {self._clock.get_fps():.1f}, time: {self.time/1000:.1f}"

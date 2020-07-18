@@ -3,6 +3,8 @@ class Settings:
         self.FPS = fps
 
         # Difficulty
+        self.DIFFICULTY_PRESET_NB = difficulty_preset_nb
+
         self.INPUT_DERIVATIVE = 1
         self.LATENCY_FACTOR = 1000
 
@@ -19,9 +21,11 @@ class Settings:
         self.BOUND_OBST_HEIGHT = (self.BALL_RADIUS * 4, self.BALL_RADIUS * 16)
         self.BOUND_OBST_DIST = (self.BOUND_OBST_WIDTH[1] + self.BALL_RADIUS * 4, 1024)
 
-        self.set_difficulty(difficulty_preset_nb)
+        self.set_difficulty(self.DIFFICULTY_PRESET_NB)
 
     def set_difficulty(self, difficulty_preset_nb: int):
+        self.DIFFICULTY_PRESET_NB = difficulty_preset_nb
+
         if difficulty_preset_nb == 0:
             pass
 

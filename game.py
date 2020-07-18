@@ -1,3 +1,5 @@
+import os
+import json
 import random
 from copy import deepcopy
 from enum import Enum
@@ -9,7 +11,8 @@ import numpy as np
 
 from ball import Ball
 from camera import Camera
-from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, DARK_GREY, RED, SETTINGS, SEED
+from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, DARK_GREY, RED, SETTINGS, SEED, SAVES_DIR, \
+    SAVE_PATH, DELAY_BEFORE_QUITTING
 from rectangle import Rectangle
 from world import World
 
@@ -23,7 +26,28 @@ class Game:
             random.seed(SEED)
 
         self._camera = Camera()
-        self._res = self._camera.pix_size
+        self._res = self._camera.res
+
+        # Loading
+        try:
+            os.makedirs(SAVES_DIR)
+        except FileExistsError:
+            pass
+
+        try:
+            with open(SAVE_PATH) as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            pass
+        else:
+            seed = data["seed"]
+            difficulty_preset_nb = data["difficulty_preset_nb"]
+
+            if seed is not None:
+                random.seed(seed)
+            SETTINGS.set_difficulty(difficulty_preset_nb)
+
+            self._camera.high_score = data["high_score"]
 
         self._len_der = SETTINGS.INPUT_DERIVATIVE + 1
         self._action_force = SETTINGS.BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
@@ -64,10 +88,21 @@ class Game:
 
         self._score = 0
 
+        self._death_time = None
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        data = {
+            "seed": SEED,
+            "difficulty_preset_nb": SETTINGS.DIFFICULTY_PRESET_NB,
+            "high_score": max(self._camera.high_score, self._score)
+            }
+
+        with open(SAVE_PATH, "w") as file:
+            json.dump(data, file, indent=4)
+
         pg.quit()
 
     @property
@@ -108,14 +143,20 @@ class Game:
             if self._action_queue.qsize() > log(max(1, self._progress * SETTINGS.LATENCY_FACTOR)):
                 self._action = self._action_queue.get()
 
-            self._action_vec[0] = self._action_map[self._action[0]] * self._action_force
-            self._action_vec[1] = self._action_map[self._action[1]] * self._action_force
+            if self._death_time is None:
+                self._action_vec[0] = self._action_map[self._action[0]] * self._action_force
+                self._action_vec[1] = self._action_map[self._action[1]] * self._action_force
 
-            self._action_vec_phantom[0] = self._action_map[action[0]] * self._action_force
-            self._action_vec_phantom[1] = self._action_map[action[1]] * self._action_force
+                self._action_vec_phantom[0] = self._action_map[action[0]] * self._action_force
+                self._action_vec_phantom[1] = self._action_map[action[1]] * self._action_force
+
+            else:
+                no_action_vec = np.array([0.0, 0.0])
+                self._action_vec = no_action_vec
+                self._action_vec_phantom = no_action_vec
 
             # Logic
-            # Obstacles
+            #   Obstacles
             if self._camera.w_view[1][0] > self._latest_obstacle_w_pos[0] + SETTINGS.BOUND_OBST_DIST[0] - SETTINGS.BOUND_OBST_WIDTH[1]/2:
                 height_bound = (self._res[1] * (0.5-BORDER_S_WIDTH) - SETTINGS.BALL_RADIUS)
                 w_pos = np.array([
@@ -129,33 +170,37 @@ class Game:
                 self._world.spawn_obstacle(w_pos, w_size, self._res)
                 self._latest_obstacle_w_pos = w_pos
 
-            # Balls physics
+            #   Balls physics
             self._ball.run_physics(self._action_vec, self._world.colliders)
             self._ball_phantom.run_physics(self._action_vec_phantom, self._world.colliders)
-
-            # Enemy
-            if self._camera.time > SETTINGS.ENEMY_WAIT:
-                self._enemy_moving = True
-
-            if self._enemy_moving:
-                self._enemy.w_shift[0] += SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_ADD_SPEED * self._progress))
-
-            if self._enemy.w_view[1][0] - self._ball.radius > self._ball.w_pos[0]:
-                return
 
             if not ((self._camera.w_view[0] < self._ball_phantom.w_pos).all()
                     and (self._ball_phantom.w_pos < self._camera.w_view[1]).all()):
                 for index in range(self._len_der):
                     self._ball_phantom.w_pos_der[index][:] = self._ball.w_pos_der[index]
 
-            # Camera
+            #   Enemy
+            if self._death_time is None and self._camera.time > SETTINGS.ENEMY_WAIT:
+                self._enemy_moving = True
+
+            if self._enemy_moving:
+                self._enemy.w_shift[0] += SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_ADD_SPEED * self._progress))
+
+            if self._death_time is None and self._enemy.w_view[1][0] - self._ball.radius > self._ball.w_pos[0]:
+                self._death_time = self._camera.time
+                self._enemy_moving = False
+
+            if self._death_time is not None and self._camera.time - self._death_time > DELAY_BEFORE_QUITTING:
+                return
+
+            #   Camera
             self._camera.req_move(self._ball.w_pos)
 
-            # World
+            #   World
             self._world.update_borders(self._camera.w_pos)
 
-            # Score
-            self._score = max(self._score, self._progress)
+            #   Score
+            self._score = max(self._score, int(self._progress))
 
             # Graphics
             self._camera.empty_screen()
@@ -166,6 +211,8 @@ class Game:
             self._camera.draw(self._enemy)
 
             self._world.draw(self._camera)
+
+            self._camera.draw_score(self._score)
 
             if DEBUG:
                 self._camera.draw_debug_info()
