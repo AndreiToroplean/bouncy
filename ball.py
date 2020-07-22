@@ -69,8 +69,7 @@ class Ball:
 
             # r = d−2(d⋅n)n
             w_normal = -w_dir / w_norm
-            self.w_vel = (self.w_vel - 2 * np.dot(self.w_vel, w_normal) * w_normal)
-            self.w_vel *= self._restitution
+            self.w_vel = (self.w_vel - 2 * np.dot(self.w_vel, w_normal) * self._restitution * w_normal)
 
             self.w_pos += (self.radius - w_norm) * (self.w_vel / w_speed) + threshold * w_normal
 

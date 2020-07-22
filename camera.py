@@ -39,8 +39,8 @@ class Camera:
         self._clock.tick(FPS)
         self.time = pg.time.get_ticks()
 
-    def req_move(self, w_pos):
-        self.w_pos += (w_pos - self.w_pos) * (CAM_DAMPING_FACTOR / FPS) * np.array((1, 0))
+    def req_move(self, w_pos_x):
+        self.w_pos[0] += (w_pos_x - self.w_pos[0]) * (CAM_DAMPING_FACTOR / FPS)
 
     def draw(self, obj):
         pix_shift = self._w_pos_to_pix_shift(obj.w_pos)
