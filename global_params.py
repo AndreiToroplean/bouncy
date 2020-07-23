@@ -18,6 +18,10 @@ C_BLACK = pg.Color(0, 0, 0)
 C_DARK_GREY = pg.Color(32, 32, 32)
 C_WHITE = pg.Color(255, 255, 255)
 C_RED = pg.Color(255, 0, 0)
+
+C_LIGHT_GREEN = pg.Color(196, 255, 128)
+C_YELLOW = pg.Color(255, 255, 64)
+
 C_END = pg.Color(150, 50, 50)
 
 FPS = 60
@@ -32,11 +36,11 @@ SCORE_ADD_FACTOR = 1.0
 SCORE_EXPADD_FACTOR = 0.00002
 
 SEED = 0
-DIFFICULTY_PRESET_NB = DifficultyPreset.der_2
+DIFFICULTY_PRESET_NB = DifficultyPreset.test
 SETTINGS = Settings(difficulty_preset=DIFFICULTY_PRESET_NB, fps=FPS)
 
-LOAD = True
-SAVE = True
+LOAD = False
+SAVE = False
 
 SAVE_DIR = "saves"
 SAVE_PROFILES = [
@@ -44,3 +48,10 @@ SAVE_PROFILES = [
     "p2_l2",
     ]
 SAVE_PATHS = [os.path.join(SAVE_DIR, f"{save_profile}.json") for save_profile in SAVE_PROFILES]
+
+BALLS_COLORS = [
+    (C_WHITE, ),
+    (C_LIGHT_GREEN, C_YELLOW),
+    ][N_PLAYERS-1]
+
+BALLS_DISTANCE = 80

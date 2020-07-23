@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class DifficultyPreset(Enum):
+    test = -1
     der_1_lag = 1
     der_2 = 2
     der_2_high_friction = 3

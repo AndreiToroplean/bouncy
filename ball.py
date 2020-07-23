@@ -1,4 +1,4 @@
-from math import isclose
+from math import isclose, pi
 
 import pygame as pg
 import numpy as np
@@ -53,7 +53,11 @@ class Ball:
     def progress(self):
         return self.w_pos[0]
 
-    def _run_physics_step(self, colliders, *, n_substeps, threshold=1.0):
+    @property
+    def mass(self):
+        return pi * self.radius ** 2
+
+    def _run_physics_step(self, colliders, other_balls, *, n_substeps, threshold=1.0):
         # Movement
         for index in reversed(range(self._len_der - 1)):
             self.w_pos_der[index] = self.w_pos_der[index] + self.w_pos_der[index + 1]
@@ -66,28 +70,44 @@ class Ball:
         if self._len_der >= 3 :
             self.w_acc -= (self.w_vel / w_speed) * ((w_speed * self._friction_factor) ** 2) / n_substeps
 
-        # Collisions
+        # Collecting collision data
+        collision_data = []
         for collider in colliders:
             bounds = collider.w_bounds_shifted
-            closest_w_pos = (
+            other_w_pos = (
                 min(max(bounds[0][0], self.w_pos[0]), bounds[1][0]),
                 min(max(bounds[0][1], self.w_pos[1]), bounds[1][1]),
                 )
-            w_dir = closest_w_pos - self.w_pos
+            collision_dist = self.radius
+            collision_data.append((other_w_pos, collision_dist, None))
+
+        for ball in other_balls:
+            other_w_pos = ball.w_pos
+            collision_dist = self.radius + ball.radius
+            collision_data.append((other_w_pos, collision_dist, ball))
+
+        # Collisions
+        for other_w_pos, collision_dist, obj in collision_data:
+            w_dir = other_w_pos - self.w_pos
             w_norm = np.linalg.norm(w_dir)
-            if w_norm > self.radius:
+            if w_norm > collision_dist:
                 continue
 
-            # r = d−2(d⋅n)n
             w_normal = -w_dir / w_norm
-            self.w_vel = (self.w_vel - 2 * np.dot(self.w_vel, w_normal) * self._restitution * w_normal)
+            w_vel_exchange = np.dot(self.w_vel, w_normal) * self._restitution * w_normal
+            w_pos_adjustment = (collision_dist - w_norm) * (self.w_vel / w_speed) + threshold * w_normal
+            if obj is None:
+                self.w_vel -= 2 * w_vel_exchange
+                self.w_pos += w_pos_adjustment
+            else:
+                self.w_vel -= w_vel_exchange
+                obj.w_vel += w_vel_exchange
+                self.w_pos += w_pos_adjustment * 0.5
 
-            self.w_pos += (self.radius - w_norm) * (self.w_vel / w_speed) + threshold * w_normal
-
-    def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
+    def run_physics(self, input_action, colliders, other_balls, *, n_substeps=N_PHYSICS_SUBSTEPS):
         self.w_pos_der[-1] = input_action
         for _ in range(n_substeps):
-            self._run_physics_step(colliders, n_substeps=n_substeps)
+            self._run_physics_step(colliders, other_balls, n_substeps=n_substeps)
 
     def draw(self, screen, pix_shift):
         pg.draw.circle(screen, self.color, pix_shift, self.radius)

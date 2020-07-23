@@ -11,7 +11,8 @@ from ball import Ball
 from camera import Camera
 from controls import CONTROL_MAPS
 from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, C_DARK_GREY, C_RED, SETTINGS, SEED, SAVE_DIR, \
-    DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR, N_PLAYERS, SAVE_PATHS
+    DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR, N_PLAYERS, SAVE_PATHS, BALLS_COLORS, \
+    BALLS_DISTANCE
 from rectangle import Rectangle
 from classes import DifficultyPreset, Action
 from world import World
@@ -71,13 +72,15 @@ class Game:
         self._res = self._camera.res
 
         self._balls = []
-        for _ in range(N_PLAYERS):
+        distance_range = BALLS_DISTANCE * (N_PLAYERS-1)
+        for i in range(N_PLAYERS):
             self._balls.append(Ball(
-                init_w_pos=np.array([0.0, 0.0]),
+                init_w_pos=np.array([0.0, i * BALLS_DISTANCE - distance_range/2]),
                 len_der=self._len_der,
                 radius=SETTINGS.BALL_RADIUS,
                 restitution=SETTINGS.BALL_RESTITUTION,
                 friction=SETTINGS.BALL_FRICTION,
+                color=BALLS_COLORS[i]
                 ))
 
         self._world = World(self._res)
@@ -99,11 +102,11 @@ class Game:
 
     @property
     def _min_progress(self):
-        return min([ball.progress for ball in self._balls])
+        return min([ball.progress for ball in self._balls if ball.alive])
 
     @property
     def _max_progress(self):
-        return max([ball.progress for ball in self._balls])
+        return max([ball.progress for ball in self._balls if ball.alive])
 
     @property
     def _worst_ball(self):
@@ -192,14 +195,14 @@ class Game:
 
         # Balls physics
         for ball, action_vec in zip(self._balls, self._actions_vecs):
-            ball.run_physics(action_vec, self._world.colliders)
+            ball.run_physics(action_vec, self._world.colliders, [b for b in self._balls if b is not ball and b.alive])
 
         # Enemy
         if self._death_time is None and self._camera.time > SETTINGS.ENEMY_WAIT:
             self._enemy_moving = True
 
         worst_ball = self._worst_ball
-        enemy_distance = worst_ball.radius + float(worst_ball.progress) - self._enemy_progress
+        enemy_distance = worst_ball.radius + worst_ball.progress - self._enemy_progress
         if self._enemy_moving:
             proximity_slowdown = SETTINGS.ENEMY_PROX_COMPENSATION_FACTOR * (1 - 1 / (enemy_distance + SETTINGS.ENEMY_PROX_BIAS + 1) ** SETTINGS.ENEMY_PROX_POW)
             self._enemy_progress += max(0, (SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_LOGADD_SPEED * self._max_progress))) * proximity_slowdown)
