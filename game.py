@@ -79,7 +79,7 @@ class Game:
         self._world = World(self._res)
 
         self._latest_obstacle_w_pos = np.array([0.0, 0.0])
-        self._world.spawn_obstacle(np.array([-self._res[0] / 4, 0.0]), np.array([self._res[0] / 8, 0.0]), self._res)
+        self._world.spawn_obstacle(np.array([-self._res[0]/4, self._res[1]/2]), np.array([self._res[0]/8, 0.0]), self._res)
 
         self._enemy = Rectangle(*(self._camera.w_view - self._res * np.array([0.5, 0.0])), color=C_RED)
         self._enemy_progress = -self._res[0] * 1 / 4
@@ -190,7 +190,7 @@ class Game:
         if self._death_time is None and self._camera.time > SETTINGS.ENEMY_WAIT:
             self._enemy_moving = True
 
-        enemy_distance = self._ball.radius + self._ball.w_pos[0] - self._enemy_progress
+        enemy_distance = self._ball.radius + float(self._ball.w_pos[0]) - self._enemy_progress
         if self._enemy_moving:
             proximity_slowdown = SETTINGS.ENEMY_PROX_COMPENSATION_FACTOR * (1 - 1 / (enemy_distance + SETTINGS.ENEMY_PROX_BIAS + 1) ** SETTINGS.ENEMY_PROX_POW)
             self._enemy_progress += max(0, (SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_LOGADD_SPEED * self._progress))) * proximity_slowdown)

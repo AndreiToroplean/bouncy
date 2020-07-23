@@ -48,6 +48,7 @@ class Settings:
             self.LATENCY_FACTOR = 0
 
             self.BALL_ACTION_FORCE = 1000
+            self.BALL_RESTITUTION = 0.75
             self.BALL_FRICTION = 10
 
             self.ENEMY_WAIT = 2048

@@ -47,7 +47,8 @@ class Ball:
     def w_acc(self, value):
         self.w_pos_der[2] = value
 
-    def _run_physics_step(self, colliders, threshold=0.01):
+    def _run_physics_step(self, colliders, *, n_substeps, threshold=1.0):
+        # Movement
         for index in reversed(range(self._len_der - 1)):
             self.w_pos_der[index] = self.w_pos_der[index] + self.w_pos_der[index + 1]
 
@@ -55,8 +56,12 @@ class Ball:
         if isclose(w_speed, 0.0):
             return
 
-        for collider in colliders:
+        # Friction
+        if self._len_der >= 3 :
+            self.w_acc -= (self.w_vel / w_speed) * ((w_speed * self._friction_factor) ** 2) / n_substeps
 
+        # Collisions
+        for collider in colliders:
             bounds = collider.w_bounds_shifted
             closest_w_pos = (
                 min(max(bounds[0][0], self.w_pos[0]), bounds[1][0]),
@@ -74,12 +79,9 @@ class Ball:
             self.w_pos += (self.radius - w_norm) * (self.w_vel / w_speed) + threshold * w_normal
 
     def run_physics(self, input_action, colliders, n_substeps=N_PHYSICS_SUBSTEPS):
-        w_speed = np.linalg.norm(self.w_vel)
-        if self._len_der >= 3 and not isclose(w_speed, 0.0):
-            self.w_acc -= (self.w_vel / w_speed) * ((w_speed * self._friction_factor) ** 2)
         self.w_pos_der[-1] = input_action
         for _ in range(n_substeps):
-            self._run_physics_step(colliders)
+            self._run_physics_step(colliders, n_substeps=n_substeps)
 
     def draw(self, screen, pix_shift):
         pg.draw.circle(screen, self.color, pix_shift, self.radius)
