@@ -23,6 +23,8 @@ class Ball:
 
         self.color = color
 
+        self.alive = True
+
     @property
     def w_pos(self):
         return self.w_pos_der[0]
@@ -46,6 +48,10 @@ class Ball:
     @w_acc.setter
     def w_acc(self, value):
         self.w_pos_der[2] = value
+
+    @property
+    def progress(self):
+        return self.w_pos[0]
 
     def _run_physics_step(self, colliders, *, n_substeps, threshold=1.0):
         # Movement

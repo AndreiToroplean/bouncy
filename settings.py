@@ -1,4 +1,4 @@
-from enum import Enum
+from classes import DifficultyPreset, Action
 
 
 class Settings:
@@ -58,7 +58,7 @@ class Settings:
             self.ENEMY_SPEED = 32 / self.FPS
             self.ENEMY_LOGADD_SPEED = 16 / self.FPS
 
-        elif difficulty_preset ==  DifficultyPreset.der_2_high_friction:
+        elif difficulty_preset == DifficultyPreset.der_2_high_friction:
             self.INPUT_DERIVATIVE = 2
             self.LATENCY_FACTOR = 1
 
@@ -66,14 +66,19 @@ class Settings:
             self.BALL_FRICTION = 40
 
             self.ENEMY_WAIT = 2048
-            self.ENEMY_SPEED = 0 / self.FPS
-            self.ENEMY_LOGADD_SPEED = 0 / self.FPS
+            self.ENEMY_SPEED = 32 / self.FPS
+            self.ENEMY_LOGADD_SPEED = 16 / self.FPS
+
+        elif difficulty_preset == DifficultyPreset.der_3:
+            self.INPUT_DERIVATIVE = 3
+            self.LATENCY_FACTOR = 0
+
+            self.BALL_ACTION_FORCE = 1000
+            self.BALL_FRICTION = 0
+
+            self.ENEMY_WAIT = 2048
+            self.ENEMY_SPEED = 32 / self.FPS
+            self.ENEMY_LOGADD_SPEED = 16 / self.FPS
 
         else:
             raise Exception(f"{difficulty_preset} is not a valid difficulty preset. ")
-
-
-class DifficultyPreset(Enum):
-    der_1_lag = 1
-    der_2 = 2
-    der_2_high_friction = 3

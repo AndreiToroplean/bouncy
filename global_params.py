@@ -2,7 +2,8 @@ import os
 
 import pygame as pg
 
-from settings import Settings, DifficultyPreset
+from settings import Settings
+from classes import DifficultyPreset
 
 DEBUG = False
 FULL_SCREEN = True
@@ -11,7 +12,7 @@ DEBUG_RES = 1280, 720
 if DEBUG:
     FULL_SCREEN = False
 
-MULTIPLAYER = False
+N_PLAYERS = 2
 
 C_BLACK = pg.Color(0, 0, 0)
 C_DARK_GREY = pg.Color(32, 32, 32)
@@ -37,7 +38,9 @@ SETTINGS = Settings(difficulty_preset=DIFFICULTY_PRESET_NB, fps=FPS)
 LOAD = True
 SAVE = True
 
-SAVES_DIR = "saves"
-SAVE_P1_PROFILE = "player_l2"
-SAVE_P2_PROFILE = "player_l2"
-SAVE_PATH = os.path.join(SAVES_DIR, f"{SAVE_P1_PROFILE}.json")
+SAVE_DIR = "saves"
+SAVE_PROFILES = [
+    "p1_l2",
+    "p2_l2",
+    ]
+SAVE_PATHS = [os.path.join(SAVE_DIR, f"{save_profile}.json") for save_profile in SAVE_PROFILES]
