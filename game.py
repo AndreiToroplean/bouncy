@@ -14,6 +14,7 @@ from camera import Camera
 from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, C_DARK_GREY, C_RED, SETTINGS, SEED, SAVES_DIR, \
     SAVE_PATH, DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR
 from rectangle import Rectangle
+from settings import DifficultyPreset
 from world import World
 
 
@@ -243,8 +244,8 @@ class Game:
             pass
         else:
             self._seed = data["seed"]
-            difficulty_preset_nb = data["difficulty_preset_nb"]
-            SETTINGS.set_difficulty(difficulty_preset_nb)
+            difficulty_preset = DifficultyPreset(data["difficulty_preset_nb"])
+            SETTINGS.set_difficulty(difficulty_preset)
 
             self._high_score = data["high_score"]
 
@@ -254,7 +255,7 @@ class Game:
 
         data = {
             "seed": self._seed,
-            "difficulty_preset_nb": SETTINGS.DIFFICULTY_PRESET_NB,
+            "difficulty_preset_nb": SETTINGS.DIFFICULTY_PRESET.value,
             "high_score": self._high_score,
             }
 

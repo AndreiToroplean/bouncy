@@ -2,7 +2,7 @@ import os
 
 import pygame as pg
 
-from settings import Settings
+from settings import Settings, DifficultyPreset
 
 DEBUG = False
 FULL_SCREEN = True
@@ -31,8 +31,8 @@ SCORE_ADD_FACTOR = 1.0
 SCORE_EXPADD_FACTOR = 0.00002
 
 SEED = 0
-DIFFICULTY_PRESET_NB = 2
-SETTINGS = Settings(difficulty_preset_nb=DIFFICULTY_PRESET_NB, fps=FPS)
+DIFFICULTY_PRESET_NB = DifficultyPreset.der_2
+SETTINGS = Settings(difficulty_preset=DIFFICULTY_PRESET_NB, fps=FPS)
 
 LOAD = True
 SAVE = True
