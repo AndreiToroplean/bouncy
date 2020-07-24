@@ -77,7 +77,7 @@ class Camera:
         if N_PLAYERS == 1:
             score_text = f"SCORE: {score:,}"
         else:
-            score_text = f"WINNER: PLAYER {winner+1}"
+            score_text = f"WINNER: P{winner+1} ({score:,})"
 
         score_text_surf = self._large_font.render(score_text, True, C_WHITE)
         score_text_pix_size = np.array(score_text_surf.get_size())

@@ -87,13 +87,13 @@ class Settings:
             self.BALL_ACTION_FORCE = 1000
             self.BALL_FRICTION = 10
 
-            self.ENEMY_WAIT = 0
-            self.ENEMY_SPEED = 0 / self.FPS
-            self.ENEMY_LOGADD_SPEED = 0 / self.FPS
+            self.ENEMY_WAIT = 2048
+            self.ENEMY_SPEED = 32 / self.FPS
+            self.ENEMY_LOGADD_SPEED = 16 / self.FPS
 
             self.BOUND_OBST_WIDTH = (128, 128)
-            self.BOUND_OBST_HEIGHT = (self.BALL_RADIUS * 16, self.BALL_RADIUS * 16)
-            self.BOUND_OBST_DIST = (1024, 1024)
+            self.BOUND_OBST_HEIGHT = (self.BALL_RADIUS * 64, self.BALL_RADIUS * 64)
+            self.BOUND_OBST_DIST = (4096, 4096)
 
         else:
             raise Exception(f"{difficulty_preset} is not a valid difficulty preset. ")

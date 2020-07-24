@@ -12,7 +12,7 @@ from camera import Camera
 from controls import CONTROL_MAPS
 from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, C_DARK_GREY, C_RED, SETTINGS, SEED, SAVE_DIR, \
     DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR, N_PLAYERS, SAVE_PATHS, BALLS_COLORS, \
-    BALLS_DISTANCE
+    BALLS_DISTANCE, ENEMY_MIN_REMAP
 from rectangle import Rectangle
 from classes import DifficultyPreset, Action
 from world import World
@@ -53,6 +53,7 @@ class Game:
         self._latest_obstacle_w_pos = None
         self._enemy = None
         self._enemy_progress = None
+        self._enemy_progress_adjusted = None
         self._enemy_moving = None
         self._scores = None
         self._actions_queue = None
@@ -90,6 +91,7 @@ class Game:
 
         self._enemy = Rectangle(*(self._camera.w_view - self._res * np.array([0.5, 0.0])), color=C_RED)
         self._enemy_progress = -self._res[0] * 1 / 4
+        self._enemy_progress_adjusted = self._enemy_progress
         self._enemy_moving = False
 
         self._scores = [0 for _ in range(N_PLAYERS)]
@@ -206,10 +208,16 @@ class Game:
         if self._enemy_moving:
             proximity_slowdown = SETTINGS.ENEMY_PROX_COMPENSATION_FACTOR * (1 - 1 / (enemy_distance + SETTINGS.ENEMY_PROX_BIAS + 1) ** SETTINGS.ENEMY_PROX_POW)
             self._enemy_progress += max(0, (SETTINGS.ENEMY_SPEED + log(max(1, SETTINGS.ENEMY_LOGADD_SPEED * self._max_progress))) * proximity_slowdown)
-        self._enemy.w_shift[0] = self._enemy_progress
+
+        border_pos = self._camera.w_view[0][0]
+        enemy_border_rel_pos = self._enemy_progress - border_pos
+        enemy_border_rel_pas_remapped = max(0, min(1, ((enemy_border_rel_pos - ENEMY_MIN_REMAP[0]) / (ENEMY_MIN_REMAP[1] - ENEMY_MIN_REMAP[0])))) ** ENEMY_MIN_REMAP[3] * (ENEMY_MIN_REMAP[1] - ENEMY_MIN_REMAP[2]) + ENEMY_MIN_REMAP[2]
+        self._enemy_progress_adjusted = max(self._enemy_progress, border_pos + enemy_border_rel_pas_remapped)
+        self._enemy.w_shift[0] = self._enemy_progress_adjusted
+        enemy_distance_adjusted = worst_ball.radius + worst_ball.progress - self._enemy_progress_adjusted
 
         # Death
-        if self._n_balls_alive != 0 and enemy_distance < 0:
+        if self._n_balls_alive != 0 and enemy_distance_adjusted < 0:
             self._n_balls_alive -= 1
             if self._n_balls_alive != 0:
                 worst_ball.alive = False
