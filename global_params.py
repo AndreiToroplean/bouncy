@@ -5,7 +5,7 @@ import pygame as pg
 from settings import Settings
 from classes import DifficultyPreset
 
-DEBUG = True
+DEBUG = False
 FULL_SCREEN = True
 WINDOWED_RES = 1280, 720
 
@@ -22,7 +22,9 @@ C_LIGHT_BLUE = pg.Color(128, 196, 255)
 
 C_END = pg.Color(150, 50, 50)
 
+SLOWMO_FACTOR = 1
 FPS = 60
+
 DELAY_BEFORE_QUITTING = 1000
 N_PHYSICS_SUBSTEPS = 10
 MAX_N_OBSTS = 10
@@ -61,4 +63,4 @@ BALLS_COLORS = [
     ][N_PLAYERS-1]
 
 BALLS_DISTANCE = 80
-ENEMY_MIN_REMAP = -2000, 200, 50, 4
+ENEMY_MIN_REMAP = -2000, 200, 50, 16

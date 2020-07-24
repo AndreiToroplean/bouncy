@@ -14,7 +14,7 @@ class Settings:
         self.BALL_RADIUS = 20
         self.BALL_ACTION_FORCE = 1000
         self.BALL_RESTITUTION = 0.75
-        self.BALL_FRICTION = 10
+        self.BALL_FRICTION = 1
 
         self.ENEMY_WAIT = 1024
         self.ENEMY_SPEED = 256 / self.FPS
@@ -39,8 +39,8 @@ class Settings:
             self.INPUT_DERIVATIVE = 1
             self.LATENCY_FACTOR = 1000
 
-            self.BALL_ACTION_FORCE = 1000
-            self.BALL_FRICTION = 10
+            self.BALL_ACTION_FORCE *= 1
+            self.BALL_FRICTION *= 1
 
             self.ENEMY_WAIT = 1024
             self.ENEMY_SPEED = 320 / self.FPS
@@ -50,9 +50,9 @@ class Settings:
             self.INPUT_DERIVATIVE = 2
             self.LATENCY_FACTOR = 0
 
-            self.BALL_ACTION_FORCE = 1000
+            self.BALL_ACTION_FORCE *= 1
             self.BALL_RESTITUTION = 0.75
-            self.BALL_FRICTION = 10
+            self.BALL_FRICTION *= 1
 
             self.ENEMY_WAIT = 2048
             self.ENEMY_SPEED = 32 / self.FPS
@@ -62,9 +62,9 @@ class Settings:
             self.INPUT_DERIVATIVE = 2
             self.LATENCY_FACTOR = 0
 
-            self.BALL_ACTION_FORCE = 2000
-            self.BALL_RESTITUTION = 1.05
-            self.BALL_FRICTION = 12
+            self.BALL_ACTION_FORCE *= 2
+            self.BALL_RESTITUTION = 1.2
+            self.BALL_FRICTION *= 1.2
 
             self.ENEMY_WAIT = 2048
             self.ENEMY_SPEED = 32 / self.FPS
@@ -74,8 +74,8 @@ class Settings:
             self.INPUT_DERIVATIVE = 2
             self.LATENCY_FACTOR = 1
 
-            self.BALL_ACTION_FORCE = 8000
-            self.BALL_FRICTION = 40
+            self.BALL_ACTION_FORCE *= 8
+            self.BALL_FRICTION *= 4
 
             self.ENEMY_WAIT = 2048
             self.ENEMY_SPEED = 32 / self.FPS
@@ -85,8 +85,8 @@ class Settings:
             self.INPUT_DERIVATIVE = 3
             self.LATENCY_FACTOR = 0
 
-            self.BALL_ACTION_FORCE = 1000
-            self.BALL_FRICTION = 0
+            self.BALL_ACTION_FORCE *= 1
+            self.BALL_FRICTION *= 0
 
             self.ENEMY_WAIT = 2048
             self.ENEMY_SPEED = 32 / self.FPS
@@ -96,12 +96,13 @@ class Settings:
             self.INPUT_DERIVATIVE = 2
             self.LATENCY_FACTOR = 0
 
-            self.BALL_ACTION_FORCE = 1000
-            self.BALL_FRICTION = 10
+            self.BALL_ACTION_FORCE *= 1
+            self.BALL_RESTITUTION = 1.05
+            self.BALL_FRICTION *= 0
 
             self.ENEMY_WAIT = 2048
-            self.ENEMY_SPEED = 32 / self.FPS
-            self.ENEMY_LOGADD_SPEED = 16 / self.FPS
+            self.ENEMY_SPEED = 0 / self.FPS
+            self.ENEMY_LOGADD_SPEED = 0 / self.FPS
 
             self.BOUND_OBST_WIDTH = (128, 128)
             self.BOUND_OBST_HEIGHT = (self.BALL_RADIUS * 64, self.BALL_RADIUS * 64)

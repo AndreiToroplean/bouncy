@@ -10,9 +10,9 @@ import numpy as np
 from ball import Ball
 from camera import Camera
 from controls import CONTROL_MAPS
-from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, C_DARK_GREY, C_RED, SETTINGS, SEED, SAVE_DIR, \
+from global_params import FPS, DEBUG, BORDER_S_WIDTH, C_DARK_GREY, C_RED, SETTINGS, SEED, SAVE_DIR, \
     DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR, N_PLAYERS, SAVE_PATHS, BALLS_COLORS, \
-    BALLS_DISTANCE, ENEMY_MIN_REMAP
+    BALLS_DISTANCE, ENEMY_MIN_REMAP, SLOWMO_FACTOR
 from rectangle import Rectangle
 from classes import Action
 from world import World
@@ -32,7 +32,7 @@ class Game:
         self._load()
 
         self._len_der = SETTINGS.INPUT_DERIVATIVE + 1
-        self._action_force = SETTINGS.BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
+        self._action_force = SETTINGS.BALL_ACTION_FORCE / (FPS * SLOWMO_FACTOR) ** (self._len_der - 1)
 
         self._action_map = {
             Action.stay: 0,

@@ -1,7 +1,8 @@
 import pygame as pg
 import numpy as np
 
-from global_params import FULL_SCREEN, C_BLACK, C_WHITE, FPS, CAM_DAMPING_FACTOR, WINDOWED_RES, C_RED, C_END, N_PLAYERS
+from global_params import FULL_SCREEN, C_BLACK, C_WHITE, FPS, CAM_DAMPING_FACTOR, WINDOWED_RES, C_RED, C_END, N_PLAYERS, \
+    SLOWMO_FACTOR
 from rectangle import Rectangle
 
 
@@ -40,7 +41,7 @@ class Camera:
         self.time = pg.time.get_ticks()
 
     def req_move(self, w_pos_x):
-        self.w_pos[0] += (w_pos_x - self.w_pos[0]) * (CAM_DAMPING_FACTOR / FPS)
+        self.w_pos[0] += (w_pos_x - self.w_pos[0]) * (CAM_DAMPING_FACTOR / (FPS * SLOWMO_FACTOR))
 
     def draw(self, obj):
         pix_shift = self._w_pos_to_pix_shift(obj.w_pos)
