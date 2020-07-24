@@ -1,7 +1,7 @@
 import pygame as pg
 import numpy as np
 
-from global_params import FULL_SCREEN, C_BLACK, C_WHITE, FPS, CAM_DAMPING_FACTOR, DEBUG_RES, C_RED, C_END, N_PLAYERS
+from global_params import FULL_SCREEN, C_BLACK, C_WHITE, FPS, CAM_DAMPING_FACTOR, WINDOWED_RES, C_RED, C_END, N_PLAYERS
 from rectangle import Rectangle
 
 
@@ -10,7 +10,7 @@ class Camera:
         if FULL_SCREEN:
             self._screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
         else:
-            self._screen = pg.display.set_mode(DEBUG_RES)
+            self._screen = pg.display.set_mode(WINDOWED_RES)
         self._clock = pg.time.Clock()
         self.time = 0
 

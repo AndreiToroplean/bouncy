@@ -58,6 +58,18 @@ class Settings:
             self.ENEMY_SPEED = 32 / self.FPS
             self.ENEMY_LOGADD_SPEED = 16 / self.FPS
 
+        elif difficulty_preset == DifficultyPreset.der_2_high_restitution:
+            self.INPUT_DERIVATIVE = 2
+            self.LATENCY_FACTOR = 0
+
+            self.BALL_ACTION_FORCE = 2000
+            self.BALL_RESTITUTION = 1.05
+            self.BALL_FRICTION = 12
+
+            self.ENEMY_WAIT = 2048
+            self.ENEMY_SPEED = 32 / self.FPS
+            self.ENEMY_LOGADD_SPEED = 12 / self.FPS
+
         elif difficulty_preset == DifficultyPreset.der_2_high_friction:
             self.INPUT_DERIVATIVE = 2
             self.LATENCY_FACTOR = 1

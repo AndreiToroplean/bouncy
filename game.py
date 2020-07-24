@@ -14,7 +14,7 @@ from global_params import FPS, N_PHYSICS_SUBSTEPS, DEBUG, BORDER_S_WIDTH, C_DARK
     DELAY_BEFORE_QUITTING, LOAD, SAVE, SCORE_EXPADD_FACTOR, SCORE_ADD_FACTOR, N_PLAYERS, SAVE_PATHS, BALLS_COLORS, \
     BALLS_DISTANCE, ENEMY_MIN_REMAP
 from rectangle import Rectangle
-from classes import DifficultyPreset, Action
+from classes import Action
 from world import World
 
 
@@ -23,15 +23,13 @@ class Game:
         pg.init()
         pg.mouse.set_visible(False)
 
-        self._high_scores = [0 for _ in range(N_PLAYERS)]
-        self._seed = SEED
-
-        self._load()
-
-        if self._seed is not None:
-            random.seed(self._seed)
+        if SEED is not None:
+            random.seed(SEED)
 
         self._random_state = random.getstate()
+
+        self._high_scores = [0 for _ in range(N_PLAYERS)]
+        self._load()
 
         self._len_der = SETTINGS.INPUT_DERIVATIVE + 1
         self._action_force = SETTINGS.BALL_ACTION_FORCE / (FPS * N_PHYSICS_SUBSTEPS) ** (self._len_der - 1)
@@ -278,18 +276,12 @@ class Game:
                 if i != 0:
                     continue
 
-                self._seed = data["seed"]
-                difficulty_preset = DifficultyPreset(data["difficulty_preset_nb"])
-                SETTINGS.set_difficulty(difficulty_preset)
-
     def _save(self):
         if not SAVE:
             return
 
         for i in range(N_PLAYERS):
             data = {
-                "seed": self._seed,
-                "difficulty_preset_nb": SETTINGS.DIFFICULTY_PRESET.value,
                 "high_score": self._high_scores[i],
                 }
 

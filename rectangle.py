@@ -28,7 +28,7 @@ class Rectangle:
         return self.w_bounds + self.w_shift
 
     def draw(self, screen, pix_shift):
-        rect = pg.Rect(
+        rect = (
             (pix_shift[0], pix_shift[1] - self._w_size[1]),
             self._w_size,
             )

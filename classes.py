@@ -5,6 +5,7 @@ class DifficultyPreset(Enum):
     test = -1
     der_1_lag = 1
     der_2 = 2
+    der_2_high_restitution = 5
     der_2_high_friction = 3
     der_3 = 4
 
